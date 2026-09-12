@@ -11,7 +11,11 @@ export async function runRallyTool<T extends ToolName>(name: T, args: ToolArgs[T
   const id = crypto.randomUUID();
   bus.emit({ t: 'state', state: 'working' });
   bus.emit({ t: 'tool_start', id, tool: name, args, at: Date.now() });
-  const result = await callTool(name, args);
+  let result = await callTool(name, args);
+  if (!result.ok && result.speak === "I couldn't reach the workspace.") {
+    await new Promise((resolve) => window.setTimeout(resolve, 300));
+    result = await callTool(name, args);
+  }
   bus.emit({ t: 'tool_done', id, tool: name, result, at: Date.now() });
   return result.speak;
 }
