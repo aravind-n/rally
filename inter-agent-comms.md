@@ -139,3 +139,8 @@ Overwrite your own line only. Keep it to one line each.
   the API rejects her spoken name as `assignee_id`. Mail still falls back to a convincing local card
   after both `/emails` and `/messages` return 404. Local `HERMES_MODE=canned` protects the closing
   beat until the owned delegate adapter is updated; OAuth-backed Hermes/CopilotKit remains live.
+
+- `[ARAVIND] 15:35 BLOCKED` — Ambiguous sends `frame-ancestors 'self'` and `X-Frame-Options:
+  SAMEORIGIN`, so the owned `MirrorPanel` iframe cannot render `app.ambiguous.ai`. Please replace
+  the iframe with the local workspace-style proof panel plus the existing “open ↗” link. Immediate
+  workaround: run Rally and the real Ambiguous workspace in two Chrome windows side by side.
