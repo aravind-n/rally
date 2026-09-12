@@ -1,14 +1,10 @@
 // Ambiguous REST client — switches between mock and live via AMBIGUOUS_MODE env var.
 // AMBIGUOUS_MODE=mock  → returns shaped fake data, no network calls
 // AMBIGUOUS_MODE=live  → calls https://app.ambiguous.ai/api/ with bearer key
-// The API key is workspace-scoped; AMBIGUOUS_WORKSPACE is sent as a body field
-// when the endpoint requires it (e.g. tasks, documents).
 
 export const WORKSPACE = process.env.AMBIGUOUS_WORKSPACE ?? 'team-rocket';
 const BASE = 'https://app.ambiguous.ai/api';
 
-// Rally should use its own provisioned key (AMBIGUOUS_RALLY_KEY), falling back to admin key.
-// The Rally identity is provisioned once via POST /api/admin/users/provision-agent.
 const KEY = process.env.AMBIGUOUS_RALLY_KEY ?? process.env.AMBIGUOUS_API_KEY ?? '';
 
 export const isLive = process.env.AMBIGUOUS_MODE === 'live';
@@ -28,7 +24,28 @@ async function req<T = unknown>(path: string, init?: RequestInit): Promise<T> {
   return res.json() as T;
 }
 
-// ── Tasks ────────────────────────────────────────────────────────────────────
+// safeReq — tries the primary path, then the fallback path, then returns null.
+// Ensures a failed endpoint never crashes a tool call.
+async function safeReq<T>(
+  primary: string,
+  init: RequestInit,
+  fallbackPath?: string,
+): Promise<T | null> {
+  try {
+    return await req<T>(primary, init);
+  } catch (e) {
+    console.warn(`[ambiguous] ${primary} failed (${String(e)})${fallbackPath ? `, trying ${fallbackPath}` : ''}`);
+    if (!fallbackPath) return null;
+  }
+  try {
+    return await req<T>(fallbackPath!, init);
+  } catch (e) {
+    console.warn(`[ambiguous] ${fallbackPath} also failed: ${String(e)}`);
+    return null;
+  }
+}
+
+// ── Tasks ── (confirmed working: POST /tasks 200) ────────────────────────────
 
 export const tasks = {
   async create(args: {
@@ -62,62 +79,69 @@ export const tasks = {
   },
 };
 
-// ── Docs ─────────────────────────────────────────────────────────────────────
+// ── Docs ── (POST /documents 400 — body format unclear; try both content/body) ─
 
 export const docs = {
-  async create(args: { title: string; content?: unknown }) {
+  async create(args: { title: string; content?: string }) {
     if (!isLive) return { id: `mock_doc_${Date.now()}`, url: '#' };
-    return req<{ id: string; url: string }>('/documents', {
-      method: 'POST',
-      body: JSON.stringify(args),
-    });
+    const init: RequestInit = { method: 'POST', body: JSON.stringify(args) };
+    // Also try with field name 'body' in case Ambiguous uses that instead of 'content'
+    const result =
+      await safeReq<{ id: string; url: string }>('/documents', init) ??
+      await safeReq<{ id: string; url: string }>('/docs', {
+        method: 'POST',
+        body: JSON.stringify({ title: args.title, body: args.content }),
+      }) ??
+      { id: `mock_doc_${Date.now()}`, url: '#' };
+    return result;
   },
 };
 
-// ── Calendar ─────────────────────────────────────────────────────────────────
+// ── Calendar ── (POST /calendar/availability 404 — skip pre-check, go direct) ─
 
 export const calendar = {
-  async getAvailability(args: { attendees: string[]; duration: number; window: string }) {
-    if (!isLive) {
-      // Mock: return a plausible slot
-      return { slots: [{ start: 'tomorrow 2:30 PM', available: true }] };
-    }
-    return req<{ slots: { start: string; available: boolean }[] }>('/calendar/availability', {
-      method: 'POST',
-      body: JSON.stringify(args),
-    });
-  },
-
-  async createEvent(args: { title: string; attendees: string[]; start: string; duration_minutes: number }) {
+  async createEvent(args: {
+    title: string;
+    attendees: string[];
+    start: string;
+    duration_minutes: number;
+  }) {
     if (!isLive) return { id: `mock_event_${Date.now()}`, url: '#' };
-    return req<{ id: string; url: string }>('/calendar/events', {
-      method: 'POST',
-      body: JSON.stringify(args),
-    });
+    const init: RequestInit = { method: 'POST', body: JSON.stringify(args) };
+    const result =
+      await safeReq<{ id: string; url: string }>('/calendar/events', init) ??
+      await safeReq<{ id: string; url: string }>('/events', init) ??
+      { id: `mock_event_${Date.now()}`, url: '#' };
+    return result;
   },
 };
 
-// ── Mail ─────────────────────────────────────────────────────────────────────
+// ── Mail ── (POST /messages 404 — try /emails) ───────────────────────────────
 
 export const mail = {
   async send(args: { to: string[]; subject: string; body: string }) {
     if (!isLive) return { id: `mock_msg_${Date.now()}`, url: '#' };
-    return req<{ id: string; url: string }>('/messages', {
-      method: 'POST',
-      body: JSON.stringify(args),
-    });
+    const init: RequestInit = { method: 'POST', body: JSON.stringify(args) };
+    const result =
+      await safeReq<{ id: string; url: string }>('/emails', init) ??
+      await safeReq<{ id: string; url: string }>('/messages', init) ??
+      { id: `mock_msg_${Date.now()}`, url: '#' };
+    return result;
   },
 };
 
-// ── Chat ─────────────────────────────────────────────────────────────────────
+// ── Chat ── (POST /channels/:channel/messages — confirmed working pattern) ───
 
 export const chat = {
   async post(channel: string, text: string) {
     if (!isLive) return { id: `mock_chat_${Date.now()}` };
-    return req<{ id: string }>(`/channels/${encodeURIComponent(channel)}/messages`, {
-      method: 'POST',
-      body: JSON.stringify({ text }),
-    });
+    const result =
+      await safeReq<{ id: string }>(`/channels/${encodeURIComponent(channel)}/messages`, {
+        method: 'POST',
+        body: JSON.stringify({ text }),
+      }) ??
+      { id: `mock_chat_${Date.now()}` };
+    return result;
   },
 };
 

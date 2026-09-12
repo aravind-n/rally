@@ -151,12 +151,7 @@ export const handlers: { [K in ToolName]: (args: ToolArgs[K]) => Promise<ToolRes
     pushCard(c);
 
     if (ambiguous.isLive) {
-      // Two-phase: check availability, then create
-      await ambiguous.calendar.getAvailability({
-        attendees: resolveNames(args.with),
-        duration: dur,
-        window: args.when,
-      });
+      // Skip availability pre-check (Ambiguous endpoint not available); create directly
       const event = await ambiguous.calendar.createEvent({
         title: args.title,
         attendees: resolveNames(args.with),
