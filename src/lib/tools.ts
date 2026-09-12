@@ -77,15 +77,15 @@ export const handlers: { [K in ToolName]: (args: ToolArgs[K]) => Promise<ToolRes
           ? `${args.details}\n\n— Created by Rally`
           : 'Created by Rally.',
         priority: args.priority,
-        // Resolve first name to email so Ambiguous can look up the user
         assignee_id: args.assignee ? resolveNames([args.assignee])[0] : undefined,
       });
       c.url = result.url;
+    }
 
-      // If title sounds like "resolve incident", flip demo state
-      if (args.title.toLowerCase().includes('resolv')) {
-        globalThis.__incidentStatus = 'resolved';
-      }
+    // Flip incident status regardless of live/mock — so the demo veto sequence
+    // works in AMBIGUOUS_MODE=mock (the default for demos without a key)
+    if (args.title.toLowerCase().includes('resolv')) {
+      globalThis.__incidentStatus = 'resolved';
     }
 
     pushCard(c);

@@ -37,6 +37,12 @@ function openDb() {
       id TEXT PRIMARY KEY, fact TEXT NOT NULL,
       tags TEXT, meeting TEXT, at INTEGER NOT NULL
     )`);
+    // MEMORY_RESET=true wipes and re-seeds — use when switching demo scenarios
+    if (process.env.MEMORY_RESET === 'true') {
+      db.exec('DELETE FROM memory');
+      globalThis.__rallyDb = undefined;
+      globalThis.__rallyMemory = undefined;
+    }
     seedIfEmpty(db);
     return db;
   } catch {
