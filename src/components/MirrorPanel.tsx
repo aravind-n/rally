@@ -29,7 +29,7 @@ export default function MirrorPanel() {
           title="Ambiguous workspace"
           className="absolute inset-0 w-full h-full border-0"
           allow="fullscreen"
-          sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+          sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"
         />
         {/* Fallback overlay — shown when iframe blocked by X-Frame-Options */}
         <noscript>

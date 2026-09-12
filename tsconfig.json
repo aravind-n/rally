@@ -14,7 +14,9 @@
     "incremental": true,
     "plugins": [{ "name": "next" }],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@openai/agents/realtime": ["./src/lib/voice/openai-agents-realtime-stub"],
+      "@openai/agents": ["./src/lib/voice/openai-agents-realtime-stub"]
     },
     "target": "ES2017"
   },

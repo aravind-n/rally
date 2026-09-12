@@ -114,6 +114,13 @@ export default function RoomDisplay() {
     thinking: null,
   });
 
+  // Detect devsim mode once on mount — suppresses VoiceController so both don't race
+  const [isDevsim, setIsDevsim] = useState(false);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setIsDevsim(params.has('devsim') && params.get('sim') !== '1');
+  }, []);
+
   // Fetch initial context
   useEffect(() => {
     fetch('/api/context')
@@ -170,6 +177,9 @@ export default function RoomDisplay() {
           case 'tool_done':
             return { ...s, thinking: null };
 
+          case 'error':
+            return { ...s, thinking: e.message, rallyState: 'offline' };
+
           case 'context':
             return { ...s, attendees: e.attendees, topic: e.agenda ?? s.topic };
 
@@ -181,10 +191,11 @@ export default function RoomDisplay() {
     return () => { unsub(); };
   }, []);
 
-  // Dev sim — activated with ?devsim=1 in the URL
+  // Dev sim — activated with ?devsim=1, skipped when ?sim=1 is also set
   useEffect(() => {
-    if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('devsim')) {
-      runDevSim();
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.has('devsim') && params.get('sim') !== '1') runDevSim();
     }
   }, []);
 
@@ -249,8 +260,8 @@ export default function RoomDisplay() {
       {/* CopilotKit sidebar — H5. Reads cards + transcript so answers are grounded. */}
       <RallyCopilot cards={cards} transcript={transcript} attendees={attendees} topic={topic} />
 
-      {/* Aravind's voice controller — mounts ?sim=1 replay with no mic or key needed */}
-      <VoiceController />
+      {/* Aravind's voice controller — skipped in ?devsim=1 to avoid racing the local sim */}
+      {!isDevsim && <VoiceController />}
 
     </div>
   );
