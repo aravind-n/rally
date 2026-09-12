@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rally — Build Plan</title>
+<style>
+:root{
+  --bg:#faf9f7; --panel:#fff; --panel2:#f4f2ee; --ink:#16151a; --muted:#6e6a75; --line:#e2dfd9;
+  --a:#c25a1e; --a-soft:#fdf0e7;          /* Aravind / voice */
+  --h:#11756b; --h-soft:#e6f4f1;          /* Hemanth / hands */
+  --j:#5b4bc4; --j-soft:#eeecfb;          /* joint */
+  --dim:#cfcac1;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d0c10; --panel:#16151b; --panel2:#1c1b22; --ink:#eeecf2; --muted:#96919f; --line:#2a2833;
+  --a:#f0894a; --a-soft:#2a1a11; --h:#3fd3c0; --h-soft:#0e2622; --j:#9d90ff; --j-soft:#1b1830;
+  --dim:#3a3744;
+}}
+:root[data-theme="dark"]{
+  --bg:#0d0c10; --panel:#16151b; --panel2:#1c1b22; --ink:#eeecf2; --muted:#96919f; --line:#2a2833;
+  --a:#f0894a; --a-soft:#2a1a11; --h:#3fd3c0; --h-soft:#0e2622; --j:#9d90ff; --j-soft:#1b1830;
+  --dim:#3a3744;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);margin:0;
+  font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1040px;margin:0 auto;padding:16px;padding-block:44px}
+.kicker{text-transform:uppercase;letter-spacing:.14em;font-size:.7rem;font-weight:700;color:var(--muted)}
+h1{font-size:2.6rem;line-height:1.05;margin:.35em 0 .25em;letter-spacing:-.03em}
+h2{font-size:.74rem;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);
+   margin:3.4em 0 1em;padding-bottom:.9em;border-bottom:1px solid var(--line);font-weight:700}
+.lede{font-size:1.22rem;line-height:1.5;max-width:40ch;color:var(--ink);margin:0 0 1.4em;letter-spacing:-.01em}
+.lede b{color:var(--a);font-weight:650}
+p{margin:0 0 1em}
+.sub{color:var(--muted);max-width:64ch;font-size:.97rem}
+code{font:.87em ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--panel2);
+  border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+.pillrow{display:flex;flex-wrap:wrap;gap:8px;margin:1.4em 0 0}
+.pill{font-size:.76rem;border:1px solid var(--line);border-radius:99px;padding:4px 12px;color:var(--muted);background:var(--panel)}
+.pill.a{color:var(--a);border-color:var(--a);background:var(--a-soft);font-weight:600}
+.pill.h{color:var(--h);border-color:var(--h);background:var(--h-soft);font-weight:600}
+
+/* two brains */
+.brains{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:720px){.brains{grid-template-columns:1fr}}
+.brain{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 22px}
+.brain.a{border-color:var(--a)}
+.brain.h{border-color:var(--h)}
+.brain .who{font-size:.7rem;text-transform:uppercase;letter-spacing:.12em;font-weight:700;margin-bottom:.5em}
+.brain.a .who{color:var(--a)} .brain.h .who{color:var(--h)}
+.brain .what{font-size:1.15rem;font-weight:650;letter-spacing:-.01em;margin-bottom:.1em}
+.brain .tech{font-size:.85rem;color:var(--muted);margin-bottom:1em}
+.brain dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:.35em .9em;font-size:.88rem}
+.brain dt{color:var(--muted)} .brain dd{margin:0}
+.bridge{text-align:center;color:var(--muted);font-size:.9rem;margin:1.1em 0 0;font-style:italic}
+
+/* demo table */
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:.9rem;min-width:560px}
+th,td{padding:10px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+td.t{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap;width:1%}
+.beat{background:var(--panel2)}
+.beat td{font-weight:600}
+.proof{font-size:.8rem;color:var(--muted)}
+
+/* arch */
+pre.arch{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:18px 20px;overflow-x:auto;font:12.5px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;
+  color:var(--ink);margin:0}
+pre.arch b{color:var(--a);font-weight:700}
+pre.arch i{color:var(--h);font-style:normal;font-weight:700}
+
+/* seam cards */
+.seam{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
+@media(max-width:720px){.seam{grid-template-columns:1fr}}
+.sc{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--j);border-radius:0 12px 12px 0;padding:16px 18px}
+.sc h4{margin:0 0 .4em;font-size:.95rem;font-family:ui-monospace,Menlo,monospace;color:var(--j)}
+.sc p{margin:0;font-size:.88rem;color:var(--muted)}
+
+/* ownership */
+.own{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:720px){.own{grid-template-columns:1fr}}
+.col{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.col header{padding:14px 18px;font-weight:700;font-size:.95rem;display:flex;align-items:baseline;gap:9px}
+.col.a header{background:var(--a-soft);color:var(--a)}
+.col.h header{background:var(--h-soft);color:var(--h)}
+.col header small{font-weight:500;font-size:.74rem;opacity:.85;margin-left:auto;text-transform:uppercase;letter-spacing:.08em}
+.col ol{margin:0;padding:12px 18px 16px 38px}
+.col li{margin:.5em 0;font-size:.9rem}
+.col li b{font-weight:650}
+.col li .m{color:var(--muted);font-size:.85rem}
+.star{color:var(--j);font-weight:700}
+
+/* timeline */
+.tl{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel)}
+.tl .row{display:grid;grid-template-columns:96px 1fr 1fr;gap:1px;background:var(--line)}
+.tl .row>*{background:var(--panel);padding:10px 14px;font-size:.87rem}
+.tl .row.hd>*{background:var(--panel2);font-size:.66rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700}
+.tl .clock{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap}
+.tl .row.sync>*{background:var(--j-soft)}
+.tl .row.sync{font-weight:600}
+.tl .span{grid-column:2 / 4;text-align:center;color:var(--j);font-weight:650}
+.tl .aa{color:var(--a)} .tl .hh{color:var(--h)}
+
+/* risks / cuts */
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:820px){.grid3{grid-template-columns:1fr}}
+.risk{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.risk h4{margin:0 0 .45em;font-size:.95rem;letter-spacing:-.01em}
+.risk p{margin:0;font-size:.86rem;color:var(--muted)}
+.risk .fix{display:block;margin-top:.7em;color:var(--ink);font-size:.85rem}
+.risk .fix b{color:var(--h)}
+
+.cuts{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.cutline{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:.87rem;margin-top:.7em}
+.cutline .c{border:1px solid var(--line);border-radius:6px;padding:3px 10px;color:var(--muted);background:var(--panel2)}
+.cutline .c.keep{border-color:var(--h);color:var(--h);background:var(--h-soft);font-weight:600}
+.cutline .arrow{color:var(--dim)}
+.lbl{font-size:.68rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700}
+
+footer{margin-top:4em;padding-top:1.4em;border-top:1px solid var(--line);color:var(--muted);font-size:.82rem}
+footer a{color:var(--a)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="kicker">AI Tinkerers Global Hackathon · Agents, Everywhere · Sept 12 2026</div>
+<h1>Rally</h1>
+<p class="lede">A voice agent that sits in your meeting and <b>says nothing</b> — until you say its name, and it files the ticket, sends the recap and books the follow-up before anyone opens a laptop.</p>
+<div class="pillrow">
+  <span class="pill a">Aravind · voice</span>
+  <span class="pill h">Hemanth · hands</span>
+  <span class="pill">OpenAI Realtime</span>
+  <span class="pill">Ambiguous</span>
+  <span class="pill">Hermes Agent</span>
+  <span class="pill">CopilotKit</span>
+  <span class="pill">Next.js · TypeScript</span>
+</div>
+
+<h2>Why it wins</h2>
+<p class="sub"><b>The silence is the feature.</b> Rally listens for minutes and says nothing. Judges have seen a hundred assistants that interrupt; they have not seen one with the discipline to shut up. And <b>the work is real and visible</b> — Rally has its own identity in an Ambiguous workspace, so the task it files reads <em>created by Rally</em>. Split screen: the room on the left, the workspace filling up on the right, live.</p>
+
+<h2>The idea worth saying out loud — two brains</h2>
+<div class="brains">
+  <div class="brain a">
+    <div class="who">Aravind owns</div>
+    <div class="what">The fast brain</div>
+    <div class="tech">OpenAI Realtime · <code>gpt-realtime-2.1</code></div>
+    <dl>
+      <dt>lifetime</dt><dd>the meeting</dd>
+      <dt>latency</dt><dd>~300ms, speech to speech</dd>
+      <dt>job</dt><dd>hear · decide · speak · fire tools</dd>
+    </dl>
+  </div>
+  <div class="brain h">
+    <div class="who">Hemanth owns</div>
+    <div class="what">The slow brain</div>
+    <div class="tech">Hermes Agent · self-hosted, non-OpenAI model</div>
+    <dl>
+      <dt>lifetime</dt><dd>forever</dd>
+      <dt>latency</dt><dd>minutes to hours</dd>
+      <dt>job</dt><dd>remember across meetings · the long tail</dd>
+    </dl>
+  </div>
+</div>
+<p class="bridge">“Rally, find out if Safari 17 has a known fetch bug.” — the fast brain says “On it” in 400ms and the meeting moves on.<br>The slow brain posts the answer into Ambiguous Chat four minutes later, <strong>while you're still demoing.</strong></p>
+
+<h2>Demo script — freeze this, build backwards from it</h2>
+<div class="tblwrap">
+<table>
+<thead><tr><th>t</th><th>what happens</th><th>what it proves</th></tr></thead>
+<tbody>
+<tr><td class="t">0:00</td><td>Three people talking about a launch. Transcript scrolls. Rally's orb is dim.</td><td class="proof">it's listening</td></tr>
+<tr class="beat"><td class="t">0:20</td><td>Still talking. Still dim. Still silent. <em>Let this sit.</em></td><td class="proof">the discipline</td></tr>
+<tr><td class="t">0:30</td><td>“…the signup flow 500s on Safari.” → <strong>“Rally, file that.”</strong></td><td class="proof">wake</td></tr>
+<tr><td class="t">0:35</td><td>Orb lights. <em>“Filing ‘Signup flow 500s on Safari.’ Who owns it?”</em> → “Priya.” → <em>“Done, assigned to Priya.”</em></td><td class="proof">speech → action → speech</td></tr>
+<tr class="beat"><td class="t">0:45</td><td>Task appears in Ambiguous Tasks. <strong>Creator: Rally.</strong></td><td class="proof">a teammate, not a bot</td></tr>
+<tr><td class="t">0:55</td><td>“Rally, book thirty minutes with Priya tomorrow and send the group a recap.”</td><td class="proof">multi-tool, one utterance</td></tr>
+<tr><td class="t">1:05</td><td>Calendar event + Mail land in Ambiguous. Rally reads back the recap's first line.</td><td class="proof">compound action</td></tr>
+<tr><td class="t">1:20</td><td>“Rally, was Safari broken last week too?” → recalls a fact from a previous meeting.</td><td class="proof">persistent memory</td></tr>
+<tr><td class="t">1:35</td><td>“Rally, look into whether this is a known Safari bug and report back.” → <em>“On it.”</em> Meeting continues.</td><td class="proof">delegation</td></tr>
+<tr class="beat"><td class="t">1:50</td><td>An Ambiguous Chat message from Rally pops in with the research. Nobody asked again.</td><td class="proof">the slow brain lands</td></tr>
+</tbody>
+</table>
+</div>
+<p class="sub" style="margin-top:1em">Build only through 0:45 and you still have a demo. Everything after is upside, in order.</p>
+
+<h2>Architecture — one Next.js app, one <code>npm run dev</code></h2>
+<pre class="arch">┌─ BROWSER ─────────────────────────┐          ┌─ SERVER ────────────────────────┐
+│ <b>RealtimeSession (WebRTC)</b>           │          │ <b>/api/rally/token</b>                │
+│   mic ─▶ gpt-realtime-2.1 ─▶ spk  │   POST   │ <i>/api/tools/[name]</i>               │
+│   <b>wake-word gate</b>                   │ ───────▶ │      ├─▶ <i>Ambiguous REST</i>          │
+│   <b>tool dispatcher</b> ────────────────┼──────────┤      └─▶ <i>Hermes Agent</i>            │
+│   <b>bus.emit(RallyEvent)</b> ──┐         │          │ <i>/api/feed</i>   (polled every 2s)   │
+└─────────────────────────────┼─────┘          └─────────────────────────────────┘
+                              ▼
+            ┌─ ROOM DISPLAY ────────────────┐         <b>orange = Aravind</b>
+            │ <i>transcript · orb · action</i>      │         <i>teal   = Hemanth</i>
+            │ <i>feed · memory · CopilotKit</i>     │
+            └───────────────────────────────┘</pre>
+
+<h2>The seam — how two agents work six hours without talking</h2>
+<p class="sub">Everything crosses at one frozen ~160-line file, <code>contract.ts</code>. Two ideas carry the whole integration.</p>
+<div class="seam">
+  <div class="sc">
+    <h4>ToolResult.speak</h4>
+    <p>Hemanth's endpoint returns the sentence Rally says out loud. He controls the voice's words without ever touching OpenAI; Aravind never learns what Ambiguous is.</p>
+  </div>
+  <div class="sc">
+    <h4>RallyEvent on bus</h4>
+    <p>Aravind emits, Hemanth renders. <code>BroadcastChannel</code> underneath, so the room display can be a second tab on the TV.</p>
+  </div>
+</div>
+<p class="sub" style="margin-top:1.2em"><b>Mock-first, both directions.</b> Hemanth ships all seven endpoints returning fake-but-shaped results in 45 minutes, then swaps real Ambiguous in behind them. Aravind ships <code>?sim=1</code> — a canned meeting replayed through the bus with no microphone and no API key — and Hemanth builds the entire UI against it. <b>Hemanth never needs an OpenAI key, and the app must boot without one.</b></p>
+
+<h2>Ownership</h2>
+<div class="own">
+  <div class="col a">
+    <header>Aravind <small>all OpenAI</small></header>
+    <ol>
+      <li><b>A0</b> ephemeral token route <span class="m">· 15m</span></li>
+      <li><b>A1</b> voice loop, hello world <span class="m">· 30m</span></li>
+      <li><b>A2</b> <span class="star">★</span> <b>the wake-word gate</b> <span class="m">· 60m, timeboxed</span></li>
+      <li><b>A3</b> tool dispatcher → Hemanth's API <span class="m">· 30m</span></li>
+      <li><b>A4</b> <span class="star">★</span> bus + <code>?sim=1</code> <span class="m">· 30m, do early</span></li>
+      <li><b>A5</b> persona &amp; confirm-out-loud <span class="m">· 30m</span></li>
+      <li><b>A6</b> context priming <span class="m">· 20m</span></li>
+      <li><b>A7</b> keyboard overrides + backup recording <span class="m">· 20m</span></li>
+    </ol>
+  </div>
+  <div class="col h">
+    <header>Hemanth <small>zero OpenAI</small></header>
+    <ol>
+      <li><b>H0</b> <span class="star">★</span> scaffold + 7 mock endpoints <span class="m">· 45m, first</span></li>
+      <li><b>H1</b> <span class="star">★</span> <b>the room display</b> <span class="m">· 2h</span></li>
+      <li><b>H2</b> <span class="star">★</span> Ambiguous tool belt <span class="m">· 1.5h</span></li>
+      <li><b>H3</b> <span class="star">★</span> Hermes Agent / <code>delegate</code> <span class="m">· 1h</span></li>
+      <li><b>H4</b> memory — <code>node:sqlite</code> <span class="m">· 30m</span></li>
+      <li><b>H5</b> CopilotKit sidebar, AnthropicAdapter <span class="m">· 45m</span></li>
+      <li><b>H6</b> Ambiguous mirror + README <span class="m">· 45m</span></li>
+    </ol>
+  </div>
+</div>
+<p class="sub" style="margin-top:1.2em"><b>Hard rule.</b> Every line of OpenAI code is Aravind's. <code>OPENAI_API_KEY</code> lives only in his <code>.env.local</code>. If Hemanth's agent reaches for an OpenAI SDK, endpoint or model name, it stops and posts <code>BLOCKED</code> in <code>inter-agent-comms.md</code>. CopilotKit runs on the Anthropic adapter and Hermes points at a non-OpenAI model, so both stay cleanly in his lane.</p>
+
+<h2>Timeline — 11:45 now, freeze at 18:00</h2>
+<div class="tl">
+  <div class="row hd"><div>clock</div><div>Aravind</div><div>Hemanth</div></div>
+  <div class="row sync"><div class="clock">11:45</div><div class="span">T0 · together — copy in <code>contract.ts</code>, agree the 7 tools · the only 30 min you must be in sync</div></div>
+  <div class="row"><div class="clock">12:15</div><div class="aa">A0 → A1 → <b>A2 wake gate</b></div><div class="hh"><b>H0 mocks first</b> (unblocks Aravind) → H1 display</div></div>
+  <div class="row sync"><div class="clock">14:15</div><div class="span">Check 1 — say “Rally, file that” → a mock card renders on the display</div></div>
+  <div class="row"><div class="clock">14:30</div><div class="aa">A3 dispatcher → A4 sim → A5 persona</div><div class="hh">H2 Ambiguous → H3 Hermes</div></div>
+  <div class="row sync"><div class="clock">16:15</div><div class="span">Check 2 — full path live: voice → Ambiguous → screen</div></div>
+  <div class="row"><div class="clock">16:45</div><div class="aa">A6 priming → A7 safety net</div><div class="hh">H4 memory → H5 CopilotKit → H6 mirror</div></div>
+  <div class="row sync"><div class="clock">17:45</div><div class="span">FREEZE — nothing merges · rehearse the script 3×</div></div>
+  <div class="row"><div class="clock">18:00</div><div class="span" style="color:var(--muted);font-weight:500">record the video · README · social post · submit</div></div>
+</div>
+
+<h2>Cut order</h2>
+<div class="cuts">
+  <div class="lbl">Drop from the left if you're behind</div>
+  <div class="cutline">
+    <span class="c">CopilotKit sidebar</span><span class="arrow">→</span>
+    <span class="c">Hermes delegation</span><span class="arrow">→</span>
+    <span class="c">memory recall</span><span class="arrow">→</span>
+    <span class="c">write_recap</span><span class="arrow">→</span>
+    <span class="c">book_slot</span>
+  </div>
+  <div class="lbl" style="margin-top:1.3em">Never cut</div>
+  <div class="cutline">
+    <span class="c keep">the wake-word gate</span>
+    <span class="c keep">file_task</span>
+    <span class="c keep">the room display</span>
+    <span class="c keep">the Ambiguous mirror</span>
+  </div>
+</div>
+
+<h2>The three things that will actually go wrong</h2>
+<div class="grid3">
+  <div class="risk">
+    <h4>Rally talks when it shouldn't</h4>
+    <p>Prompting the model to stay quiet does not work. It will butt in, and it will butt in on camera.</p>
+    <span class="fix"><b>Fix:</b> gate deterministically in code — transcribe always, <code>create_response:false</code>, fire <code>response.create</code> only on a wake-word match. Push-to-talk is the timeboxed fallback at T+2h.</span>
+  </div>
+  <div class="risk">
+    <h4>Room audio feedback</h4>
+    <p>Rally hears its own voice through the speaker and loops forever.</p>
+    <span class="fix"><b>Fix:</b> <code>echoCancellation:true</code>, headphones for the operator, hard-mute the mic while speaking. Test at T+2h, not at 17:50.</span>
+  </div>
+  <div class="risk">
+    <h4>Ambiguous API surprises</h4>
+    <p>Undocumented endpoints discovered at 17:00 are how demos die.</p>
+    <span class="fix"><b>Fix:</b> mocks stay in the codebase behind <code>AMBIGUOUS_MODE=mock|live</code>. Flip one env var and the demo is identical on camera.</span>
+  </div>
+</div>
+
+<h2>Deliberately not doing</h2>
+<p class="sub">Auth · multi-user · speaker diarization (label everything “Room”) · tests · error boundaries · migrations · deployment · mobile · Google Calendar OAuth. The demo runs on a laptop at <code>localhost:3000</code>. Speed over correctness, every time.</p>
+
+<footer>
+Plan files: <code>PLAN.md</code> · <code>AGENT-ARAVIND.md</code> · <code>AGENT-HEMANTH.md</code> · <code>inter-agent-comms.md</code> · <code>contract.ts</code>.
+Idea sourced from <code>opus5-ideas.html</code> #13 and <code>voice-ranked-top10.html</code> #3.
+Stack refs: <a href="https://developers.openai.com/api/docs/guides/realtime">OpenAI Realtime</a> ·
+<a href="https://www.ambiguous.ai/">Ambiguous</a> ·
+<a href="https://hermes-agent.nousresearch.com/">Hermes Agent</a> ·
+<a href="https://docs.copilotkit.ai/reference/classes/llm-adapters/AnthropicAdapter">CopilotKit AnthropicAdapter</a>.
+</footer>
+
+</div>
+</body>
+</html>
