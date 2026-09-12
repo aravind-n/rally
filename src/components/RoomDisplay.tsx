@@ -24,15 +24,32 @@ const STATE_LABEL: Record<RallyState, string> = {
   speaking:  'Speaking',
 };
 
-// ── Dev sim — fires fake events so Hemanth can test the UI without Aravind ───
+// ── Dev sim — fires real tool endpoints + fake bus events ─────────────────────
 // Activate with ?devsim=1. Separate from Aravind's ?sim=1 full-meeting replay.
+
+type Step = RallyEvent | (() => void);
+
 function runDevSim() {
   const emit = (e: RallyEvent) => bus.emit(e);
   let t = 0;
   const at = () => Date.now();
+  const q = (ms: number, step: Step) =>
+    setTimeout(() => (typeof step === 'function' ? step() : emit(step)), (t += ms));
 
-  const q = (ms: number, e: RallyEvent) => setTimeout(() => emit(e), (t += ms));
+  const tool = (tool: string, args: unknown, label: string) => {
+    emit({ t: 'tool_start', id: `sim-${tool}`, tool: tool as never, args, at: at() });
+    emit({ t: 'thinking', label });
+    fetch(`/api/tools/${tool}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(args),
+    })
+      .then((r) => r.json())
+      .then((result) => emit({ t: 'tool_done', id: `sim-${tool}`, tool: tool as never, result, at: at() }))
+      .catch(() => null);
+  };
 
+  // ── Beat 1: file a task ──────────────────────────────────────────────────
   q(400,  { t: 'state', state: 'listening' });
   q(800,  { t: 'context', attendees: ['Priya', 'Sam', 'Alex'], agenda: 'Upload Reliability Review' });
   q(1200, { t: 'heard', id: '1', text: 'yeah the signup flow 500s on Safari', final: true, at: at() });
@@ -40,29 +57,46 @@ function runDevSim() {
   q(600,  { t: 'heard', id: '3', text: 'Rally, file that', final: true, at: at() });
   q(200,  { t: 'wake', utterance: 'Rally, file that', at: at() });
   q(100,  { t: 'state', state: 'armed' });
-  q(400,  { t: 'thinking', label: 'Filing task…' });
-  q(200,  { t: 'state', state: 'working' });
-  q(1200, { t: 'state', state: 'speaking' });
+  q(400,  () => {
+    emit({ t: 'state', state: 'working' });
+    tool('file_task', { title: 'Signup flow 500s on Safari', assignee: 'Priya', priority: 'urgent' }, 'Filing task…');
+  });
+  q(1400, { t: 'state', state: 'speaking' });
   q(2000, { t: 'spoke', text: "Filed 'Signup flow 500s on Safari', assigned to Priya.", at: at() });
   q(200,  { t: 'state', state: 'listening' });
-  q(1500, { t: 'heard', id: '4', text: 'Rally, book thirty minutes with Priya tomorrow and send a recap', final: true, at: at() });
-  q(200,  { t: 'wake', utterance: 'Rally, book thirty minutes with Priya tomorrow', at: at() });
+
+  // ── Beat 2: book a slot ──────────────────────────────────────────────────
+  q(1500, { t: 'heard', id: '4', text: 'Rally, book thirty minutes with Priya tomorrow', final: true, at: at() });
+  q(200,  { t: 'wake', utterance: 'Rally, book thirty minutes', at: at() });
   q(100,  { t: 'state', state: 'armed' });
-  q(300,  { t: 'state', state: 'working' });
-  q(1500, { t: 'state', state: 'speaking' });
-  q(2000, { t: 'spoke', text: "Booked 30 minutes with Priya tomorrow at 3 PM. Recap sent.", at: at() });
+  q(400,  () => {
+    emit({ t: 'state', state: 'working' });
+    tool('book_slot', { title: 'Follow-up: Signup flow 500s', with: ['Priya'], when: 'tomorrow at 3pm', duration_minutes: 30 }, 'Booking slot…');
+  });
+  q(1400, { t: 'state', state: 'speaking' });
+  q(2000, { t: 'spoke', text: "Booked 30 minutes with Priya tomorrow at 3 PM.", at: at() });
   q(200,  { t: 'state', state: 'listening' });
+
+  // ── Beat 3: recall from memory ───────────────────────────────────────────
   q(1200, { t: 'heard', id: '5', text: 'Rally, was Safari broken last week too?', final: true, at: at() });
-  q(200,  { t: 'wake', utterance: 'Rally, was Safari broken last week', at: at() });
+  q(200,  { t: 'wake', utterance: 'Rally, was Safari broken', at: at() });
   q(100,  { t: 'state', state: 'armed' });
-  q(300,  { t: 'state', state: 'working' });
+  q(400,  () => {
+    emit({ t: 'state', state: 'working' });
+    tool('recall', { query: 'Safari bug' }, 'Searching memory…');
+  });
   q(1200, { t: 'state', state: 'speaking' });
-  q(2500, { t: 'spoke', text: "Yes — Safari 17 has a known fetch bug with large request bodies. I noted it in last week's review.", at: at() });
+  q(2500, { t: 'spoke', text: "Yes — Safari 17 has a known fetch bug with large request bodies. I noted it last week.", at: at() });
   q(200,  { t: 'state', state: 'listening' });
-  q(1000, { t: 'heard', id: '6', text: 'Rally, look into whether this is a known bug and report back', final: true, at: at() });
+
+  // ── Beat 4: delegate to slow brain ───────────────────────────────────────
+  q(1000, { t: 'heard', id: '6', text: 'Rally, look into this and report back', final: true, at: at() });
   q(200,  { t: 'wake', utterance: 'Rally, look into', at: at() });
   q(100,  { t: 'state', state: 'armed' });
-  q(300,  { t: 'state', state: 'working' });
+  q(400,  () => {
+    emit({ t: 'state', state: 'working' });
+    tool('delegate', { task: 'Find out if Safari 17 has a known fetch bug with large request bodies and report back', report_to: 'general' }, 'Delegating to Hermes…');
+  });
   q(1000, { t: 'state', state: 'speaking' });
   q(1500, { t: 'spoke', text: "On it. I'll report back.", at: at() });
   q(200,  { t: 'state', state: 'listening' });
@@ -88,7 +122,7 @@ export default function RoomDisplay() {
       .catch(() => null);
   }, []);
 
-  // Poll action feed every 2 s
+  // Poll action feed every 2s
   useEffect(() => {
     const id = setInterval(() => {
       fetch('/api/feed')
@@ -105,7 +139,7 @@ export default function RoomDisplay() {
       setState((s) => {
         switch (e.t) {
           case 'state':
-            return { ...s, rallyState: e.state };
+            return { ...s, rallyState: e.state, thinking: e.state !== 'working' ? null : s.thinking };
 
           case 'heard': {
             if (!e.final) return s;
@@ -126,7 +160,11 @@ export default function RoomDisplay() {
           case 'thinking':
             return { ...s, thinking: e.label };
 
-          case 'tool_start':
+          case 'spoke': {
+            const line: TranscriptLine = { id: `rally-${e.at}`, text: e.text, speaker: 'Rally', isWake: false, at: e.at };
+            return { ...s, thinking: null, transcript: [...s.transcript.slice(-30), line] };
+          }
+
           case 'tool_done':
             return { ...s, thinking: null };
 
