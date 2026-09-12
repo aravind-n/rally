@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rally — Done State</title>
+<style>
+:root{
+  --bg:#faf9f7; --panel:#fff; --panel2:#f4f2ee; --ink:#16151a; --muted:#6e6a75; --line:#e2dfd9;
+  --a:#c25a1e; --a-soft:#fdf0e7; --h:#11756b; --h-soft:#e6f4f1; --j:#5b4bc4; --j-soft:#eeecfb;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0d0c10; --panel:#16151b; --panel2:#1c1b22; --ink:#eeecf2; --muted:#96919f; --line:#2a2833;
+  --a:#f0894a; --a-soft:#2a1a11; --h:#3fd3c0; --h-soft:#0e2622; --j:#9d90ff; --j-soft:#1b1830;
+}}
+:root[data-theme="dark"]{
+  --bg:#0d0c10; --panel:#16151b; --panel2:#1c1b22; --ink:#eeecf2; --muted:#96919f; --line:#2a2833;
+  --a:#f0894a; --a-soft:#2a1a11; --h:#3fd3c0; --h-soft:#0e2622; --j:#9d90ff; --j-soft:#1b1830;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);margin:0;
+  font:16px/1.62 -apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1000px;margin:0 auto;padding:16px;padding-block:44px}
+.kicker{text-transform:uppercase;letter-spacing:.14em;font-size:.7rem;font-weight:700;color:var(--muted)}
+h1{font-size:2.5rem;line-height:1.05;margin:.35em 0 .3em;letter-spacing:-.03em}
+h2{font-size:.74rem;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);
+   margin:3.6em 0 1.1em;padding-bottom:.9em;border-bottom:1px solid var(--line);font-weight:700}
+h3{font-size:1.08rem;letter-spacing:-.01em;margin:2.2em 0 .5em}
+.lede{font-size:1.16rem;line-height:1.5;max-width:58ch;margin:0 0 1em}
+p{margin:0 0 1.1em;max-width:72ch}
+.muted{color:var(--muted)}
+code{font:.87em ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--panel2);
+  border:1px solid var(--line);border-radius:4px;padding:1px 5px}
+b,strong{font-weight:650}
+
+/* ascii blocks */
+figure{margin:0 0 1.4em}
+figcaption{font-size:.66rem;text-transform:uppercase;letter-spacing:.13em;color:var(--muted);
+  font-weight:700;margin-bottom:.6em}
+pre{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+  padding:20px 22px;overflow-x:auto;margin:0;
+  font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,"DejaVu Sans Mono",monospace;
+  color:var(--ink);white-space:pre}
+pre b{color:var(--a);font-weight:700}
+pre i{color:var(--h);font-style:normal;font-weight:700}
+pre u{color:var(--j);text-decoration:none;font-weight:700}
+pre .c{color:var(--muted)}
+.note{background:var(--a-soft);border-left:3px solid var(--a);border-radius:0 10px 10px 0;
+  padding:14px 17px;font-size:.92rem;margin:1.3em 0;max-width:72ch}
+.note b{color:var(--a)}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:1.2em}
+@media(max-width:760px){.grid2{grid-template-columns:1fr}}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+.box h4{margin:0 0 .5em;font-size:.94rem;letter-spacing:-.01em}
+.box p{margin:0;font-size:.87rem;color:var(--muted);max-width:none}
+
+.tblwrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--panel);margin-bottom:1.3em}
+table{border-collapse:collapse;width:100%;font-size:.88rem;min-width:520px}
+th,td{padding:9px 14px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.64rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:700;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+td.k{white-space:nowrap;font-family:ui-monospace,Menlo,monospace;font-size:.8rem}
+
+ul.done{list-style:none;padding:0;margin:0 0 1.2em;max-width:72ch}
+ul.done li{padding:10px 0 10px 30px;border-bottom:1px solid var(--line);position:relative;font-size:.93rem}
+ul.done li:last-child{border-bottom:0}
+ul.done li::before{content:"✓";position:absolute;left:4px;top:10px;color:var(--h);font-weight:800}
+ul li{margin:.35em 0}
+footer{margin-top:4em;padding-top:1.4em;border-top:1px solid var(--line);color:var(--muted);font-size:.82rem}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="kicker">Rally · the done state</div>
+<h1>What this looks like when it's finished</h1>
+<p class="lede">One laptop. One browser tab. One <code>npm run dev</code>. A dark display on the room TV, the Ambiguous workspace beside it, and an agent sitting in the meeting with a microphone and hands.</p>
+<p class="muted">This document describes the finished artifact — every screen region, every mechanism, and every path a spoken sentence takes on its way to becoming a real object in a real workspace. It is the target that <code>PLAN.md</code> is the schedule for.</p>
+
+<h2>1 · The thing itself</h2>
+
+<p>Rally is a voice agent that joins a meeting the way a quiet colleague does: it sits there, it follows along, and it does not speak. The microphone is open the entire time and the transcript scrolls continuously on the room display, so everyone can see it is paying attention — but it produces no audio, no summaries, no suggestions, no interruptions.</p>
+
+<p>When someone says its name, it acts inside the conversation. Not afterwards, not in a digest email, not in a document nobody opens. Within about five seconds of <em>"Rally, file that"</em> there is a real task in a real workspace, with an owner and a priority, and Rally has said so out loud.</p>
+
+<p>The finished product is two screens side by side, and the second one is the point. The left screen is Rally. The right screen is the <strong>Ambiguous workspace</strong> — the actual team workspace, with actual Tasks, Mail, Calendar, Docs and Chat — filling up in real time as Rally works. Every object it creates is attributed to a workspace member named Rally, with its own identity and its own avatar. Not a bot account posting on someone's behalf. A teammate.</p>
+
+<div class="note"><b>The one-sentence version.</b> Every meeting assistant on the market produces a transcript you read later. Rally produces <em>work</em>, during the meeting, and it is the only one whose headline feature is the discipline to stay silent until asked.</div>
+
+<h2>2 · The room display</h2>
+
+<p>This is what's on the TV, and what fills most of the demo video. It is designed to be read from across a room by someone who is not looking directly at it: dark ground, few elements, one large moving thing.</p>
+
+<figure>
+<figcaption>src/app/page.tsx — 1920×1080, dark, always-on</figcaption>
+<pre>┌──────────────────────────────────────────────────────────┬──────────────────────────────┐
+│  <b>● RALLY</b>                                          00:47   │  ACTIONS THIS MEETING        │
+│                                                          │                              │
+│                         ╭───────╮                        │  ┌────────────────────────┐  │
+│                         │       │  ◀── <b>the orb</b>            │  │ <i>● TASKS</i>                │  │
+│                         ╰───────╯      dim · breathing   │  │ Signup flow 500s on    │  │
+│                        l i s t e n i n g                 │  │ Safari                 │  │
+│                                                          │  │ (Priya) (P1) (ENG-412) │  │
+│ ──────────────────── T R A N S C R I P T ─────────────── │  └────────────────────────┘  │
+│                                                          │                              │
+│   SAM     Okay — launch is Thursday. What's still open?  │  ┌────────────────────────┐  │
+│   PRIYA   The signup flow 500s on Safari.                │  │ <i>● CALENDAR</i>             │  │
+│   SAM     Yeah, I hit that too. iOS only?                │  │ Safari signup bug      │  │
+│                                                          │  │ (Priya) (tmrw 3:00pm)  │  │
+│ <b>▌</b> ARAVIND Rally, file that.        ◀── <b>wake line</b>        │  └────────────────────────┘  │
+│                                                          │                              │
+│  ┌────────────────────────────────────────────────────┐  │  ┌────────────────────────┐  │
+│  │ <b>RALLY</b>                                              │  │  │ <i>● CHAT</i>       working…  │  │
+│  │ Filing "Signup flow 500s on Safari." Who owns it?  │  │  │ Researching Safari 17  │  │
+│  └────────────────────────────────────────────────────┘  │  │ fetch behaviour        │  │
+│                                                          │  └────────────────────────┘  │
+│                                                          │                              │
+│ ──────────────────────────────────────────────────────── │ ──────────────────────────── │
+│  Priya · Sam · Aravind · Hemanth                         │  ↑ every card deep-links     │
+│                                                          │    into Ambiguous            │
+└──────────────────────────────────────────────────────────┴──────────────────────────────┘</pre>
+</figure>
+
+<div class="grid2">
+  <div class="box"><h4>The orb carries the pitch</h4><p>It's the only element readable from across a room, and it tells the whole story without words: dim and slowly breathing for minutes on end, then snapping to full brightness the instant someone says the name. Dim is the state that's on screen longest, so it's the state that gets the most design attention.</p></div>
+  <div class="box"><h4>The transcript proves the silence</h4><p>Without a visible transcript, "it's listening" is a claim. With one scrolling past while the orb stays dim, it's evidence. Wake lines get an accent bar so the moment reads on video.</p></div>
+  <div class="box"><h4>Rally's speech is rendered, not just heard</h4><p>Everything Rally says also appears as a bordered block in the transcript. Room audio is unreliable on a phone recording; the caption is not.</p></div>
+  <div class="box"><h4>The feed proves the action</h4><p>A card slides in from the right the instant a tool returns, colour-coded by which Ambiguous app it landed in, chipped with owner and priority, and linked to the real object.</p></div>
+</div>
+
+<h3>The orb's five states</h3>
+
+<figure>
+<figcaption>driven entirely by RallyEvent · {t:'state'} over the contract's event bus</figcaption>
+<pre>        ┌───────────┐   session connects    ┌─────────────────┐
+        │  OFFLINE  │ ────────────────────▶ │    LISTENING    │ ◀────────────┐
+        │ grey·still│                       │  dim·breathing  │              │
+        └───────────┘                       └────────┬────────┘              │
+              ▲                                      │                       │
+              │                            isWake(transcript) ✓              │
+              │                                      ▼                       │
+              │                              ┌─────────────────┐             │
+              │                              │      ARMED      │             │
+              │                              │ bright · 1 ring │             │
+              │                              └────────┬────────┘             │
+              │ disconnect                            │ tool call starts     │
+              │                                       ▼                      │
+              │                              ┌─────────────────┐             │
+              │                              │     WORKING     │             │
+              │                              │  ring spinning  │             │
+              │                              └────────┬────────┘             │
+              │                                       │ audio begins         │
+              │                                       ▼                      │
+              │                              ┌─────────────────┐  turn ends  │
+              └──────────────────────────────│    SPEAKING     │─────────────┘
+                                             │   fast pulse    │
+                                             └─────────────────┘
+
+   <span class="c">LISTENING is the default and the resting state. Every path returns to it.
+   The demo spends roughly 70% of its runtime there, on purpose.</span></pre>
+</figure>
+
+<h2>3 · The wake gate</h2>
+
+<p>This is the mechanism the whole product rests on, and it is worth being precise about because the naive version does not work. The naive version is to connect a Realtime session and write "only respond when addressed as Rally" in the system prompt. That fails. The model will interrupt, it will interrupt unpredictably, and it will interrupt during the demo.</p>
+
+<p>The real implementation never gives the model the option. The session is configured to segment turns and transcribe them, but with response creation <strong>switched off at the session level</strong>. The model physically cannot produce audio on its own. The only code path that leads to speech is a manual <code>response.create</code>, and that line only executes after a string match.</p>
+
+<figure>
+<figcaption>src/lib/voice/gate.ts</figcaption>
+<pre>                          microphone · continuous, never muted
+                                        │
+                                        ▼
+                         ┌──────────────────────────────┐
+                         │   server VAD segments a turn │
+                         │   (someone stopped talking)  │
+                         └──────────────┬───────────────┘
+                                        ▼
+                         ┌──────────────────────────────┐
+                         │   whisper transcribes it     │
+                         └──────────────┬───────────────┘
+                                        │
+             <span class="c">conversation.item.input_audio_transcription.completed</span>
+                                        │
+                                        ▼
+                               ╱─────────────────╲
+                              ╱   isWake(text) ?  ╲
+                              ╲                   ╱
+                               ╲─────────────────╱
+                       no             │   │            yes
+                    ┌─────────────────┘   └─────────────────┐
+                    ▼                                       ▼
+      ┌──────────────────────────┐          ┌────────────────────────────────┐
+      │ bus.emit({t:'heard'})    │          │ bus.emit({t:'wake'})           │
+      │                          │          │ transport.sendEvent({          │
+      │ line scrolls on screen   │          │   type:'response.create' })    │
+      │                          │          │                                │
+      │ <b>RALLY MAKES NO SOUND</b>      │          │ <b>RALLY SPEAKS</b>                  │
+      └──────────────────────────┘          └────────────────────────────────┘
+
+   ★ <b>create_response: false</b> on the session's turn_detection is the whole trick.
+     The model is never handed the opportunity to answer. Interruption is not
+     discouraged — it is structurally unreachable.
+
+   ★ <b>isWake()</b> deliberately accepts what Whisper mishears "Rally" as:
+     rally · rallye · raleigh · rallies · valley · really
+     A false wake is a shrug. A missed wake on camera is the demo.</pre>
+</figure>
+
+<h2>4 · How a sentence becomes an object</h2>
+
+<p>End to end, from a person's mouth to a row in a workspace and back out of a speaker. The browser holds the voice session directly over WebRTC, so there is no server-side audio plumbing anywhere in this path — the server only ever sees JSON.</p>
+
+<figure>
+<figcaption>"Rally, file that." → a task in Ambiguous · ~5 seconds</figcaption>
+<pre> PERSON       REALTIME (browser)      TOOL BELT (server)     AMBIGUOUS      ROOM DISPLAY
+    │                 │                       │                  │               │
+    │ "Rally,         │                       │                  │               │
+    │  file that" ───▶│                       │                  │               │
+    │                 │ transcribe            │                  │               │
+    │                 │ isWake ✓              │                  │               │
+    │                 │────────────────────────────── {t:'wake'} ───────────────▶│ orb ARMED
+    │                 │ response.create       │                  │               │
+    │                 │                       │                  │               │
+    │◀───── "Filing   │                       │                  │               │
+    │      that. Who  │                       │                  │               │
+    │      owns it?"  │                       │                  │               │
+    │                 │                       │                  │               │
+    │ "Priya" ───────▶│                       │                  │               │
+    │                 │ tool call: file_task  │                  │               │
+    │                 │──────────────────────▶│                  │               │
+    │                 │  POST /api/tools/     │  POST /api/tasks │               │
+    │                 │       file_task       │─────────────────▶│               │
+    │                 │                       │                  │ <b>created by</b>    │
+    │                 │                       │◀──── id, url ────│ <b>Rally</b>         │
+    │                 │                       │                  │               │
+    │                 │◀── { ok, speak, card }│                  │               │
+    │                 │──────────────────────────── {t:'tool_done'} ────────────▶│ card slides in
+    │                 │                       │                  │               │
+    │◀───── "Done,    │                       │                  │               │
+    │    assigned to  │  <span class="c">← speaks the `speak` string, near-verbatim</span>      │               │
+    │    Priya."      │                       │                  │               │
+
+   ★ <b>`speak` is written by the tool endpoint, not the model.</b> That single field is
+     what lets the workspace half of the team author Rally's words without ever
+     touching a voice API — and lets the voice half stay ignorant of what
+     Ambiguous even is.</pre>
+</figure>
+
+<h2>5 · Two brains</h2>
+
+<p>A Realtime session is a WebRTC connection with a sub-second turn budget that dies when the tab closes. It is the right tool for hearing and speaking and the wrong tool for anything that takes four minutes or needs to exist tomorrow morning. So Rally has a second, slower half.</p>
+
+<figure>
+<figcaption>the hand-off that produces the demo's last beat</figcaption>
+<pre>               "Rally, look into whether that's a known WebKit bug
+                            and report back."
+                                    │
+                                    ▼
+   ┌───────────────────────── <b>FAST BRAIN</b> ──────────────────────────┐
+   │  OpenAI Realtime · gpt-realtime-2.1 · lives for the meeting     │
+   │                                                                 │
+   │  hears it → fires delegate() → says "On it — I'll report back." │
+   │                                                                 │
+   │                          ~400 ms                                │
+   └────────────────────────────────┬────────────────────────────────┘
+                                    │  hands off, forgets about it
+                                    ▼
+   ┌───────────────────────── <i>SLOW BRAIN</i> ──────────────────────────┐
+   │  Hermes Agent · self-hosted · lives forever                     │
+   │                                                                 │
+   │  web search → read the WebKit tracker → summarise → post        │
+   │                                                                 │
+   │                        ~4 minutes                               │
+   └────────────────────────────────┬────────────────────────────────┘
+                                    ▼
+                       <i>Ambiguous Chat · #launch</i>
+          "Safari 17.4 has a known fetch() regression on streamed
+           responses — WebKit #271883. Workaround in thread."
+                          <span class="c">— posted as Rally</span>
+
+   <span class="c">Meanwhile the meeting has moved on two topics. Nobody asked again.
+   It just came back.</span></pre>
+</figure>
+
+<div class="note"><b>Why this matters more than it sounds.</b> Every other beat in the demo is a fast voice agent doing a fast thing. This one is the product continuing to work after the conversation that created it ended — which is the difference between a voice interface and an actual agent, and it is the single thing the organizers most consistently reward.</div>
+
+<h2>6 · System map</h2>
+
+<figure>
+<figcaption>one Next.js app · one npm run dev · nothing deployed</figcaption>
+<pre>  ┌──────────────── BROWSER ─────────────────┐   ┌─────────────── SERVER ────────────────┐
+  │                                          │   │                                       │
+  │   ┌──────────────────────────────────┐   │   │   <b>/api/rally/token</b>                   │
+  │   │  RealtimeSession  (WebRTC)       │   │   │     mints the ephemeral ek_… secret   │
+  │   │                                  │   │   │                                       │
+  │   │   mic ──▶ gpt-realtime-2.1 ──▶ 🔊│   │   │   <b>/api/copilotkit</b>                    │
+  │   │                                  │   │   │     copilot runtime · openai adapter  │
+  │   │   <b>wake gate</b>                     │   │   │                                       │
+  │   │   <b>tool dispatcher</b> ───────────────┼───┼──▶│   <i>/api/tools/[name]</i>                 │
+  │   │   <b>bus.emit(RallyEvent)</b>           │   │   │     ├──▶ <i>Ambiguous REST</i>   ak_…      │
+  │   └────────────────┬─────────────────┘   │   │   │     ├──▶ <i>Hermes Agent</i>   local      │
+  │                    │                     │   │   │     └──▶ <i>node:sqlite</i>    rally.db   │
+  │                    ▼                     │   │   │                                       │
+  │   ┌──────────────────────────────────┐   │◀──┼───│   <i>/api/feed</i>     ActionCard[] · 2s poll│
+  │   │  <i>ROOM DISPLAY</i>                    │   │   │   <i>/api/context</i>  attendees + agenda    │
+  │   │  orb · transcript · action feed  │   │   │                                       │
+  │   │  memory panel · copilot sidebar  │   │   └───────────────────────────────────────┘
+  │   └──────────────────────────────────┘   │
+  └──────────────────────────────────────────┘        <b>orange = Aravind</b>  ·  <i>teal = Hemanth</i>
+
+   <span class="c">Audio never touches the server. The browser talks to OpenAI directly over
+   WebRTC; the server only ever handles JSON. That removes the single largest
+   source of latency and the single largest source of build risk.</span></pre>
+</figure>
+
+<h2>7 · Everything Rally can do</h2>
+
+<div class="tblwrap">
+<table>
+<thead><tr><th>you say</th><th>tool</th><th>what appears, where</th></tr></thead>
+<tbody>
+<tr><td>"Rally, file that."</td><td class="k">file_task</td><td>a task in Ambiguous <b>Tasks</b>, owner resolved from first name</td></tr>
+<tr><td>"…and email the group a recap."</td><td class="k">send_mail</td><td>real mail from Rally in Ambiguous <b>Mail</b></td></tr>
+<tr><td>"Book thirty minutes with Priya tomorrow."</td><td class="k">book_slot</td><td>an event in Ambiguous <b>Calendar</b>; the date phrase is parsed server-side</td></tr>
+<tr><td>"Write that up."</td><td class="k">write_recap</td><td>a structured doc in Ambiguous <b>Docs</b> — bullets, decisions, owners</td></tr>
+<tr><td>"Remember that."</td><td class="k">remember</td><td>a row in persistent <b>memory</b>, tagged, surviving restarts</td></tr>
+<tr><td>"Was Safari broken last week too?"</td><td class="k">recall</td><td>a spoken answer sourced from a <em>previous</em> meeting</td></tr>
+<tr><td>"Look into it and report back."</td><td class="k">delegate</td><td>"On it" now; a Hermes-authored answer in Ambiguous <b>Chat</b> minutes later</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>8 · The two minutes on camera</h2>
+
+<figure>
+<figcaption>the demo video, beat by beat</figcaption>
+<pre>  0:00  ├──  three people talking about a launch                    orb: <span class="c">dim</span>
+        │    transcript scrolling · Rally silent
+        │
+  0:20  ├──  still talking. still dim. <b>still silent.</b>              orb: <span class="c">dim</span>
+        │    ◀── do not cut this short. it is the differentiator.
+        │
+  0:30  ├──  "Rally, file that."                                    orb: <b>ARMED</b>
+  0:35  ├──  "Filing it. Who owns it?" → "Priya." → "Done."         orb: <b>WORKING</b>
+  0:45  ├──  ★ task appears in Ambiguous · <b>created by Rally</b>
+        │
+  0:55  ├──  "Book thirty with Priya tomorrow, send a recap."
+  1:05  ├──  calendar + mail + doc all land · one utterance         orb: <b>WORKING</b>
+        │
+  1:20  ├──  "Was Safari broken last week too?"
+        │    → recalls a fact from a meeting that already happened
+        │
+  1:35  ├──  "Look into it and report back." → "On it."             orb: <span class="c">dim</span>
+        │    meeting continues · two more topics go by
+        │
+  1:50  ├──  ★ <b>Hermes posts the answer into Ambiguous Chat.</b>
+        └──    unprompted. nobody asked again.
+
+   <span class="c">Build only through 0:45 and you still have a demo.
+   Everything after that is upside, in the order listed.</span></pre>
+</figure>
+
+<h2>9 · The repository</h2>
+
+<figure>
+<figcaption>github.com/aravind-n/rally at 19:00</figcaption>
+<pre>rally/
+├── <span class="c">README.md · PLAN.md · AGENTS.md · inter-agent-comms.md</span>
+│
+├── src/lib/<u>contract.ts</u>              <span class="c">THE SEAM · types · event bus · callTool()</span>
+│
+├── src/app/
+│   ├── <i>page.tsx</i>                     <span class="c">the room display</span>
+│   ├── api/rally/<b>token</b>/route.ts      <span class="c">mints the ephemeral realtime key</span>
+│   ├── api/<b>copilotkit</b>/route.ts       <span class="c">copilot runtime · openai adapter</span>
+│   ├── api/tools/<i>[name]</i>/route.ts     <span class="c">the seven tools</span>
+│   ├── api/<i>feed</i>/route.ts             <span class="c">ActionCard[] · polled every 2s</span>
+│   └── api/<i>context</i>/route.ts          <span class="c">attendees + agenda, primed into the session</span>
+│
+├── src/lib/voice/                    <span class="c">← Aravind, exclusively</span>
+│   ├── <b>session.ts</b>                   <span class="c">webrtc realtime session</span>
+│   ├── <b>gate.ts</b>                      <span class="c">the wake gate</span>
+│   ├── <b>tools.ts</b>                     <span class="c">tool declarations → POST to the tool belt</span>
+│   └── <b>sim.ts</b>                       <span class="c">?sim=1 · the whole demo, no mic, no key</span>
+│
+├── src/lib/                          <span class="c">← Hemanth, exclusively</span>
+│   ├── <i>ambiguous.ts</i>                 <span class="c">tasks · mail · calendar · docs · chat</span>
+│   ├── <i>hermes.ts</i>                    <span class="c">delegate + cross-meeting recall</span>
+│   ├── <i>memory.ts</i>                    <span class="c">node:sqlite</span>
+│   └── <i>tools.ts</i>                     <span class="c">the seven handlers · mock and live</span>
+│
+└── src/components/
+    ├── <b>VoiceController.tsx</b>
+    └── <i>Orb · Transcript · ActionFeed · MemoryPanel · Sidebar</i>
+
+   <b>orange = Aravind</b>   ·   <i>teal = Hemanth</i>   ·   <u>purple = shared, frozen</u></pre>
+</figure>
+
+<h2>10 · Definition of done</h2>
+
+<p>Not "the code compiles." These are the seven things you must be able to demonstrate on demand, in front of someone, without a rehearsal:</p>
+
+<ul class="done">
+  <li><b>It stays quiet.</b> Three people hold a real sixty-second conversation and Rally makes no sound — and you can point at the code path that makes interruption structurally impossible rather than merely unlikely.</li>
+  <li><b>It acts inside the conversation.</b> One spoken sentence produces a real task in a real workspace in under five seconds, and Rally confirms out loud without being asked to.</li>
+  <li><b>It is a teammate, not a bot.</b> Every artifact in Ambiguous reads <em>created by Rally</em>, and every card on the feed deep-links to the real object.</li>
+  <li><b>It compounds.</b> One utterance fires three tools — calendar, mail, docs — without stopping to ask which to do first.</li>
+  <li><b>It remembers.</b> It answers a question about a meeting that happened last week, from storage that survived a process restart.</li>
+  <li><b>It keeps working after you stop talking.</b> A delegated task returns on its own, into Ambiguous Chat, while the demo is still running.</li>
+  <li><b>It survives the room.</b> Four independent fallbacks: <code>AMBIGUOUS_MODE=mock</code>, <code>HERMES_MODE=canned</code>, <code>?sim=1</code>, and a clean recording made by 17:00.</li>
+</ul>
+
+<h2>11 · What is honestly held together with tape</h2>
+
+<p>This is a one-day build and the README says so out loud, because judges at this event explicitly reward "here's what broke" over a silently faked demo.</p>
+
+<ul>
+<li><strong>No speaker diarization.</strong> Every transcript line is attributed to "Room" unless a human labels it. Real diarization is a day of work for a cosmetic gain.</li>
+<li><strong>Recall is <code>LIKE '%term%'</code> over about fifty rows</strong>, not a vector search. On camera the two are indistinguishable and one costs four minutes instead of forty.</li>
+<li><strong>Dates are parsed by <code>chrono-node</code></strong>, not reasoned about. "Tomorrow at 3" works; "the Tuesday after the offsite" does not.</li>
+<li><strong>Attendees are hardcoded</strong> in <code>/api/context</code>. There is no calendar integration deciding who is in the room.</li>
+<li><strong>No auth, no multi-user, no tests, no deployment.</strong> It runs on one laptop at <code>localhost:3000</code> and that is the intended production environment for exactly one day.</li>
+<li><strong>The memory table is seeded</strong> with three facts from a fictional previous meeting, so the recall beat has something to recall.</li>
+</ul>
+
+<p class="muted">The parts that are genuinely real: the wake gate, the Realtime voice loop, the Ambiguous writes, and the Hermes hand-off. Those four are the product. Everything above is scaffolding around them, and saying so is worth more than pretending otherwise.</p>
+
+<footer>
+Companion to <code>PLAN.md</code> (the schedule), <code>rally-plan.html</code> (the plan for humans), and <code>src/lib/contract.ts</code> (the frozen interface). Diagrams describe the target state, not the current one.
+</footer>
+
+</div>
+</body>
+</html>
