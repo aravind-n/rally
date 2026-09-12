@@ -45,7 +45,8 @@ on camera.
 - **Additive changes only.** It is always faster to add an optional field than to change one. If you
   must break `contract.ts`, post `CONTRACT` in comms and wait for `ACK`.
 - **Never block.** If you're waiting on the other agent, mock it and keep moving.
-- **Commit often, small messages, straight to `master`.** No branches, no PRs, no review.
+- **Commit often, straight to `master`.** No branches, no PRs, no review. Write terse commit
+  messages in the imperative tense: one sentence, or up to three if and only if absolutely necessary.
 - **When something breaks, write it down in comms.** Judges at this event explicitly reward
   "here's what broke" — a known-broken thing is worth more than a silently-faked one.
 
