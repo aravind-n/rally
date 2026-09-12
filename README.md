@@ -84,23 +84,18 @@ The server is just Next.js route handlers holding the tool belt.
 
 ```bash
 npm install
+cp .env.local.example .env.local   # fill in your keys
 npm run dev
 ```
 
-```bash
-# .env.local
-OPENAI_API_KEY=sk-...          # voice, Hermes, and the CopilotKit runtime — one account
-AMBIGUOUS_API_KEY=ak_...       # the workspace
-AMBIGUOUS_MODE=live            # or `mock` — the UI is identical either way
-HERMES_MODE=live               # or `canned`
-```
+See [`.env.local.example`](.env.local.example) for all variables. The two you need for a live
+demo are `AMBIGUOUS_RALLY_KEY` (or `AMBIGUOUS_API_KEY`) and `OPENAI_API_KEY`.
 
-Every model here is an OpenAI model: `gpt-realtime-2.1` for the voice loop, and the current
-flagship text model behind Hermes and the CopilotKit runtime.
+`AMBIGUOUS_MODE=mock` (the default) runs the full UI with no credentials — every Ambiguous write
+returns a shaped fake response. Flip to `live` once you have keys.
 
-Open `localhost:3000`, allow the mic, wear headphones (Rally will otherwise hear itself through
-the speaker and loop). **`localhost:3000/?sim=1`** replays a scripted meeting through the event
-bus with no microphone and no API keys — that's how the UI was built, and it's the demo fallback.
+`?devsim=1` replays the demo script through the event bus with no mic and no keys — the room
+display was built against this.
 
 ## Stack
 

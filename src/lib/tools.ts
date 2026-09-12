@@ -10,6 +10,27 @@ import { pushCard, updateCard } from './feed';
 import * as ambiguous from './ambiguous';
 import { rememberFact, recallFacts } from './memory';
 
+// ── Attendee name resolution ──────────────────────────────────────────────────
+// Fuzzy-matches first names against ATTENDEES_JSON env var, falls back to
+// name@<workspace>.com so demo never hard-errors.
+
+function loadRoster(): Record<string, string> {
+  try {
+    return JSON.parse(process.env.ATTENDEES_JSON ?? '{}');
+  } catch {
+    return {};
+  }
+}
+
+function resolveNames(names: string[]): string[] {
+  const roster = loadRoster();
+  const workspace = process.env.AMBIGUOUS_WORKSPACE ?? 'team-rocket';
+  return names.map((name) => {
+    const key = Object.keys(roster).find((k) => k.toLowerCase() === name.toLowerCase().trim());
+    return key ? roster[key] : `${name.toLowerCase().replace(/\s+/g, '.')}@${workspace}.com`;
+  });
+}
+
 // ── Shared helpers ────────────────────────────────────────────────────────────
 
 function card(
@@ -56,6 +77,8 @@ export const handlers: { [K in ToolName]: (args: ToolArgs[K]) => Promise<ToolRes
           ? `${args.details}\n\n— Created by Rally`
           : 'Created by Rally.',
         priority: args.priority,
+        // Resolve first name to email so Ambiguous can look up the user
+        assignee_id: args.assignee ? resolveNames([args.assignee])[0] : undefined,
       });
       c.url = result.url;
 
@@ -96,7 +119,7 @@ export const handlers: { [K in ToolName]: (args: ToolArgs[K]) => Promise<ToolRes
     });
 
     if (ambiguous.isLive) {
-      const result = await ambiguous.mail.send(args);
+      const result = await ambiguous.mail.send({ ...args, to: resolveNames(args.to) });
       c.url = result.url;
     }
 
@@ -130,13 +153,13 @@ export const handlers: { [K in ToolName]: (args: ToolArgs[K]) => Promise<ToolRes
     if (ambiguous.isLive) {
       // Two-phase: check availability, then create
       await ambiguous.calendar.getAvailability({
-        attendees: args.with,
+        attendees: resolveNames(args.with),
         duration: dur,
         window: args.when,
       });
       const event = await ambiguous.calendar.createEvent({
         title: args.title,
-        attendees: args.with,
+        attendees: resolveNames(args.with),
         start: parsed.toISOString(),
         duration_minutes: dur,
       });
