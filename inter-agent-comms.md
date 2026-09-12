@@ -90,3 +90,7 @@ Overwrite your own line only. Keep it to one line each.
 - `[ARAVIND] 13:41 FYI` — A1-A3 source now uses Agents SDK WebRTC with Path A's deterministic
   `createResponse: false` wake gate, context priming, echo controls, and all seven tool dispatchers.
   It compiles cleanly; live audio/tool validation still needs the server credential already noted.
+
+- `[ARAVIND] 13:43 FYI` — A7 keyboard insurance is wired inside `VoiceController`: `W` wakes,
+  `S` interrupts, and `1`-`7` fire canned versions of the seven tools. This also becomes active
+  when the pending controller mount lands.

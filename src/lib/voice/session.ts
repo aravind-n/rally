@@ -31,6 +31,7 @@ type ClientSecretResponse = {
 };
 
 let stopActiveVoice: (() => void) | null = null;
+let activeSession: RealtimeSession | null = null;
 
 function emitError(error: unknown) {
   const message = error instanceof Error ? error.message : String(error);
@@ -106,6 +107,21 @@ function handleTransportEvent(
   }
 }
 
+export function forceRallyWake() {
+  bus.emit({ t: 'wake', utterance: 'Keyboard override', at: Date.now() });
+  bus.emit({ t: 'state', state: 'armed' });
+  if (activeSession?.transport.requestResponse) {
+    activeSession.transport.requestResponse();
+  } else {
+    activeSession?.transport.sendEvent({ type: 'response.create' });
+  }
+}
+
+export function forceRallySilence() {
+  activeSession?.interrupt();
+  bus.emit({ t: 'state', state: 'listening' });
+}
+
 export async function startRallyVoice() {
   stopActiveVoice?.();
 
@@ -117,6 +133,7 @@ export async function startRallyVoice() {
     if (stopped) return;
     stopped = true;
     session?.close();
+    if (activeSession === session) activeSession = null;
     mediaStream?.getTracks().forEach((track) => track.stop());
     bus.emit({ t: 'state', state: 'offline' });
     if (stopActiveVoice === stop) stopActiveVoice = null;
@@ -174,6 +191,7 @@ export async function startRallyVoice() {
         },
       },
     });
+    activeSession = session;
 
     session.on('transport_event', (event) => handleTransportEvent(session!, event));
     session.on('agent_start', () => bus.emit({ t: 'state', state: 'working' }));

@@ -7,7 +7,7 @@ import {
   type ToolName,
 } from '@/lib/contract';
 
-async function dispatch<T extends ToolName>(name: T, args: ToolArgs[T]) {
+export async function runRallyTool<T extends ToolName>(name: T, args: ToolArgs[T]) {
   const id = crypto.randomUUID();
   bus.emit({ t: 'state', state: 'working' });
   bus.emit({ t: 'tool_start', id, tool: name, args, at: Date.now() });
@@ -26,7 +26,7 @@ export const rallyTools = [
       assignee: z.string().optional(),
       priority: z.enum(['urgent', 'high', 'normal', 'low']).optional(),
     }),
-    execute: (args) => dispatch('file_task', args),
+    execute: (args) => runRallyTool('file_task', args),
   }),
   tool({
     name: 'send_mail',
@@ -36,7 +36,7 @@ export const rallyTools = [
       subject: z.string(),
       body: z.string(),
     }),
-    execute: (args) => dispatch('send_mail', args),
+    execute: (args) => runRallyTool('send_mail', args),
   }),
   tool({
     name: 'book_slot',
@@ -47,7 +47,7 @@ export const rallyTools = [
       when: z.string(),
       duration_minutes: z.number().optional(),
     }),
-    execute: (args) => dispatch('book_slot', args),
+    execute: (args) => runRallyTool('book_slot', args),
   }),
   tool({
     name: 'write_recap',
@@ -58,7 +58,7 @@ export const rallyTools = [
       decisions: z.array(z.string()).optional(),
       owners: z.array(z.object({ who: z.string(), what: z.string() })).optional(),
     }),
-    execute: (args) => dispatch('write_recap', args),
+    execute: (args) => runRallyTool('write_recap', args),
   }),
   tool({
     name: 'remember',
@@ -67,13 +67,13 @@ export const rallyTools = [
       fact: z.string(),
       tags: z.array(z.string()).optional(),
     }),
-    execute: (args) => dispatch('remember', args),
+    execute: (args) => runRallyTool('remember', args),
   }),
   tool({
     name: 'recall',
     description: 'Recall relevant facts from earlier meetings.',
     parameters: z.object({ query: z.string() }),
-    execute: (args) => dispatch('recall', args),
+    execute: (args) => runRallyTool('recall', args),
   }),
   tool({
     name: 'delegate',
@@ -82,6 +82,6 @@ export const rallyTools = [
       task: z.string(),
       report_to: z.string().optional(),
     }),
-    execute: (args) => dispatch('delegate', args),
+    execute: (args) => runRallyTool('delegate', args),
   }),
 ];
