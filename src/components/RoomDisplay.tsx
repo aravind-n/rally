@@ -26,82 +26,140 @@ const STATE_LABEL: Record<RallyState, string> = {
   speaking:  'Speaking',
 };
 
-// ── Dev sim — fires real tool endpoints + fake bus events ─────────────────────
-// Activate with ?devsim=1. Separate from Aravind's ?sim=1 full-meeting replay.
+// ── Dev sim — Incident War Room scenario ─────────────────────────────────────
+// Activate with ?devsim=1. Eight beats: P0 → status mail → recall → VETO →
+// resolve → all-clear → delegate. Separate from Aravind's ?sim=1 replay.
 
-type Step = RallyEvent | (() => void);
-
-function runDevSim() {
+async function runDevSim() {
+  const pause = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
   const emit = (e: RallyEvent) => bus.emit(e);
-  let t = 0;
   const at = () => Date.now();
-  const q = (ms: number, step: Step) =>
-    setTimeout(() => (typeof step === 'function' ? step() : emit(step)), (t += ms));
 
-  const tool = (tool: string, args: unknown, label: string) => {
-    emit({ t: 'tool_start', id: `sim-${tool}`, tool: tool as never, args, at: at() });
+  // Fires a real tool endpoint and speaks the result on the transcript
+  async function tool(name: string, args: unknown, label: string) {
+    emit({ t: 'tool_start', id: `sim-${name}`, tool: name as never, args, at: at() });
     emit({ t: 'thinking', label });
-    fetch(`/api/tools/${tool}`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify(args),
-    })
-      .then((r) => r.json())
-      .then((result) => emit({ t: 'tool_done', id: `sim-${tool}`, tool: tool as never, result, at: at() }))
-      .catch(() => null);
-  };
+    try {
+      const r = await fetch(`/api/tools/${name}`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(args),
+      });
+      const result = (await r.json()) as { ok?: boolean; speak?: string; card?: unknown };
+      emit({ t: 'tool_done', id: `sim-${name}`, tool: name as never, result: result as never, at: at() });
+      if (result.speak) {
+        emit({ t: 'state', state: 'speaking' });
+        emit({ t: 'spoke', text: result.speak, at: at() });
+      }
+      return result;
+    } catch {
+      emit({ t: 'error', message: `${name} failed` });
+      return null;
+    }
+  }
 
-  // ── Beat 1: file a task ──────────────────────────────────────────────────
-  q(400,  { t: 'state', state: 'listening' });
-  q(800,  { t: 'context', attendees: ['Priya', 'Sam', 'Alex'], agenda: 'Upload Reliability Review' });
-  q(1200, { t: 'heard', id: '1', text: 'yeah the signup flow 500s on Safari', final: true, at: at() });
-  q(800,  { t: 'heard', id: '2', text: 'I saw that this morning too', speaker: 'Sam', final: true, at: at() });
-  q(600,  { t: 'heard', id: '3', text: 'Rally, file that', final: true, at: at() });
-  q(200,  { t: 'wake', utterance: 'Rally, file that', at: at() });
-  q(100,  { t: 'state', state: 'armed' });
-  q(400,  () => {
-    emit({ t: 'state', state: 'working' });
-    tool('file_task', { title: 'Signup flow 500s on Safari', assignee: 'Priya', priority: 'urgent' }, 'Filing task…');
-  });
-  q(1400, { t: 'state', state: 'speaking' });
-  q(2000, { t: 'spoke', text: "Filed 'Signup flow 500s on Safari', assigned to Priya.", at: at() });
-  q(200,  { t: 'state', state: 'listening' });
+  // ── Setup ────────────────────────────────────────────────────────────────
+  emit({ t: 'state', state: 'listening' });
+  emit({ t: 'context', attendees: ['Alex', 'Priya', 'Sam'], agenda: 'P0 — Payments API Down' });
+  await pause(1000);
 
-  // ── Beat 2: book a slot ──────────────────────────────────────────────────
-  q(1500, { t: 'heard', id: '4', text: 'Rally, book thirty minutes with Priya tomorrow', final: true, at: at() });
-  q(200,  { t: 'wake', utterance: 'Rally, book thirty minutes', at: at() });
-  q(100,  { t: 'state', state: 'armed' });
-  q(400,  () => {
-    emit({ t: 'state', state: 'working' });
-    tool('book_slot', { title: 'Follow-up: Signup flow 500s', with: ['Priya'], when: 'tomorrow at 3pm', duration_minutes: 30 }, 'Booking slot…');
-  });
-  q(1400, { t: 'state', state: 'speaking' });
-  q(2000, { t: 'spoke', text: "Booked 30 minutes with Priya tomorrow at 3 PM.", at: at() });
-  q(200,  { t: 'state', state: 'listening' });
+  emit({ t: 'heard', id: 's1', text: "payments are down — 500s on every checkout attempt", final: true, at: at() });
+  await pause(1400);
+  emit({ t: 'heard', id: 's2', text: "DB metrics look normal from my side", speaker: 'Sam', final: true, at: at() });
+  await pause(1200);
+  emit({ t: 'heard', id: 's3', text: "app tier is throwing connection errors", speaker: 'Priya', final: true, at: at() });
+  await pause(1000);
 
-  // ── Beat 3: recall from memory ───────────────────────────────────────────
-  q(1200, { t: 'heard', id: '5', text: 'Rally, was Safari broken last week too?', final: true, at: at() });
-  q(200,  { t: 'wake', utterance: 'Rally, was Safari broken', at: at() });
-  q(100,  { t: 'state', state: 'armed' });
-  q(400,  () => {
-    emit({ t: 'state', state: 'working' });
-    tool('recall', { query: 'Safari bug' }, 'Searching memory…');
-  });
-  q(1200, { t: 'state', state: 'speaking' });
-  q(2500, { t: 'spoke', text: "Yes — Safari 17 has a known fetch bug with large request bodies. I noted it last week.", at: at() });
-  q(200,  { t: 'state', state: 'listening' });
+  // ── Beat 1: File the P0 ──────────────────────────────────────────────────
+  emit({ t: 'heard', id: 's4', text: "Rally, open a P0 — payments API down, assign to Priya", final: true, at: at() });
+  emit({ t: 'wake', utterance: 'Rally, open a P0', at: at() });
+  emit({ t: 'state', state: 'armed' });
+  await pause(400);
+  emit({ t: 'state', state: 'working' });
+  await tool('file_task', { title: 'P0 — Payments API Down', assignee: 'Priya', priority: 'urgent' }, 'Opening P0…');
+  await pause(1800);
+  emit({ t: 'state', state: 'listening' });
 
-  // ── Beat 4: delegate to slow brain ───────────────────────────────────────
-  q(1000, { t: 'heard', id: '6', text: 'Rally, look into this and report back', final: true, at: at() });
-  q(200,  { t: 'wake', utterance: 'Rally, look into', at: at() });
-  q(100,  { t: 'state', state: 'armed' });
-  q(400,  () => {
-    emit({ t: 'state', state: 'working' });
-    tool('delegate', { task: 'Find out if Safari 17 has a known fetch bug with large request bodies and report back', report_to: 'general' }, 'Delegating to Hermes…');
-  });
-  q(1000, { t: 'state', state: 'speaking' });
-  q(1500, { t: 'spoke', text: "On it. I'll report back.", at: at() });
-  q(200,  { t: 'state', state: 'listening' });
+  // ── Beat 2: Send status notice (goes through — not claiming fixed) ────────
+  await pause(1500);
+  emit({ t: 'heard', id: 's5', text: "Rally, send customers a notice we're aware of payment issues", final: true, at: at() });
+  emit({ t: 'wake', utterance: "Rally, send customers a notice", at: at() });
+  emit({ t: 'state', state: 'armed' });
+  await pause(300);
+  emit({ t: 'state', state: 'working' });
+  await tool('send_mail', {
+    to: ['customers-updates'],
+    subject: 'Payment service disruption — investigating',
+    body: 'We are aware of an issue affecting payment processing and are actively investigating. We will update you shortly.',
+  }, 'Sending status notice…');
+  await pause(1800);
+  emit({ t: 'state', state: 'listening' });
+
+  // ── Beat 3: Recall prior incident ────────────────────────────────────────
+  await pause(1200);
+  emit({ t: 'heard', id: 's6', text: "Rally, did we see this pattern in a previous outage?", final: true, at: at() });
+  emit({ t: 'wake', utterance: 'Rally, did we see this before', at: at() });
+  emit({ t: 'state', state: 'armed' });
+  await pause(300);
+  emit({ t: 'state', state: 'working' });
+  await tool('recall', { query: 'previous outage payment' }, 'Searching incident memory…');
+  await pause(2200);
+  emit({ t: 'state', state: 'listening' });
+
+  // ── Beat 4: The Veto ─────────────────────────────────────────────────────
+  await pause(1500);
+  emit({ t: 'heard', id: 's7', text: "Rally, tell customers payments are back up and operational", final: true, at: at() });
+  emit({ t: 'wake', utterance: 'Rally, tell customers payments are back up', at: at() });
+  emit({ t: 'state', state: 'armed' });
+  await pause(300);
+  emit({ t: 'state', state: 'working' });
+  await tool('send_mail', {
+    to: ['customers-updates'],
+    subject: 'Payment services restored',
+    body: 'Payment services are back up and fully operational. All transactions are processing normally.',
+  }, 'Sending all-clear…'); // ← Rally REFUSES this
+
+  // Rally refused. Resolve the incident first.
+  await pause(2500);
+  emit({ t: 'state', state: 'listening' });
+  emit({ t: 'heard', id: 's8', text: "Rally, file the payments incident as resolved", final: true, at: at() });
+  emit({ t: 'wake', utterance: 'Rally, file as resolved', at: at() });
+  emit({ t: 'state', state: 'armed' });
+  await pause(300);
+  emit({ t: 'state', state: 'working' });
+  await tool('file_task', {
+    title: 'Payments incident resolved — connection pool fix applied',
+    priority: 'urgent',
+  }, 'Filing resolution…');
+  await pause(1800);
+  emit({ t: 'state', state: 'listening' });
+
+  // Now the all-clear goes through
+  emit({ t: 'heard', id: 's9', text: "Rally, now send the all-clear to customers", final: true, at: at() });
+  emit({ t: 'wake', utterance: 'Rally, send the all-clear', at: at() });
+  emit({ t: 'state', state: 'armed' });
+  await pause(300);
+  emit({ t: 'state', state: 'working' });
+  await tool('send_mail', {
+    to: ['customers-updates'],
+    subject: 'Payment services fully restored',
+    body: 'Payment services are fully restored. All transactions are processing normally. We apologize for the disruption.',
+  }, 'Sending all-clear…');
+  await pause(1800);
+  emit({ t: 'state', state: 'listening' });
+
+  // ── Beat 5: Delegate to slow brain ───────────────────────────────────────
+  await pause(1200);
+  emit({ t: 'heard', id: 's10', text: "Rally, look into whether this matches November and report back", final: true, at: at() });
+  emit({ t: 'wake', utterance: 'Rally, look into November outage pattern', at: at() });
+  emit({ t: 'state', state: 'armed' });
+  await pause(300);
+  emit({ t: 'state', state: 'working' });
+  await tool('delegate', {
+    task: 'Compare current payments outage with November 14 incident — does pattern match? What was the exact fix applied?',
+    report_to: 'incident-response',
+  }, 'Delegating to slow brain…');
+  emit({ t: 'state', state: 'listening' });
 }
 
 export default function RoomDisplay() {
@@ -195,7 +253,7 @@ export default function RoomDisplay() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
-      if (params.has('devsim') && params.get('sim') !== '1') runDevSim();
+      if (params.has('devsim') && params.get('sim') !== '1') void runDevSim();
     }
   }, []);
 

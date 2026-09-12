@@ -5,6 +5,26 @@ import { randomUUID } from 'crypto';
 
 interface Row { id: string; fact: string; tags: string | null; meeting: string | null; at: number }
 
+// ── Demo seeds — previous incident history ────────────────────────────────────
+
+const SEEDS: Array<{ fact: string; tags: string[]; meeting: string }> = [
+  {
+    fact: 'November 14 outage: Payments API failed due to DB connection pool exhaustion — pool maxed at 100 connections, fixed by increasing to 500 and restarting app tier, resolved in 52 minutes',
+    tags: ['payments', 'outage', 'connection-pool', 'november', 'p0'],
+    meeting: 'November 14 Incident Postmortem',
+  },
+  {
+    fact: 'Priya owns the payments service; Alex is primary oncall for infrastructure alerts; Sam covers DB and network',
+    tags: ['ownership', 'oncall', 'priya', 'alex', 'sam'],
+    meeting: 'Q3 Oncall Rotation Review',
+  },
+  {
+    fact: 'Last three P0 incidents averaged 47 minutes to resolve — connection pool exhaustion is the most common root cause for payments failures',
+    tags: ['p0', 'incident', 'payments', 'sla', 'connection-pool'],
+    meeting: 'November 14 Incident Postmortem',
+  },
+];
+
 // ── SQLite path ───────────────────────────────────────────────────────────────
 
 declare global { var __rallyDb: unknown }
@@ -35,13 +55,10 @@ function seedIfEmpty(db: NonNullable<ReturnType<typeof openDb>>) {
   const count = db!.prepare('SELECT COUNT(*) AS c FROM memory').get() as { c: number };
   if (count.c > 0) return;
   const ins = db!.prepare('INSERT INTO memory (id, fact, tags, meeting, at) VALUES (?, ?, ?, ?, ?)');
-  const week = Date.now() - 7 * 86_400_000;
-  ins.run(randomUUID(), 'We decided to use Redis for distributed throttling on the upload API',
-    '["redis","throttling","upload"]', 'Upload Reliability Review', week);
-  ins.run(randomUUID(), 'Safari 17 has a known fetch bug with large request bodies — chunks over 8MB fail silently',
-    '["safari","bug","fetch","upload"]', 'Upload Reliability Review', week);
-  ins.run(randomUUID(), 'Priya owns the load testing framework; Alex owns the timeout fixes',
-    '["ownership","priya","alex"]', 'Upload Reliability Review', week);
+  const month = Date.now() - 30 * 86_400_000;
+  for (const s of SEEDS) {
+    ins.run(randomUUID(), s.fact, JSON.stringify(s.tags), s.meeting, month);
+  }
 }
 
 // ── In-memory fallback ────────────────────────────────────────────────────────
@@ -50,15 +67,14 @@ declare global { var __rallyMemory: Row[] | undefined }
 
 function getFallback(): Row[] {
   if (!globalThis.__rallyMemory) {
-    const week = Date.now() - 7 * 86_400_000;
-    globalThis.__rallyMemory = [
-      { id: randomUUID(), fact: 'We decided to use Redis for distributed throttling on the upload API',
-        tags: '["redis","throttling","upload"]', meeting: 'Upload Reliability Review', at: week },
-      { id: randomUUID(), fact: 'Safari 17 has a known fetch bug with large request bodies — chunks over 8MB fail silently',
-        tags: '["safari","bug","fetch","upload"]', meeting: 'Upload Reliability Review', at: week },
-      { id: randomUUID(), fact: 'Priya owns the load testing framework; Alex owns the timeout fixes',
-        tags: '["ownership","priya","alex"]', meeting: 'Upload Reliability Review', at: week },
-    ];
+    const month = Date.now() - 30 * 86_400_000;
+    globalThis.__rallyMemory = SEEDS.map((s) => ({
+      id: randomUUID(),
+      fact: s.fact,
+      tags: JSON.stringify(s.tags),
+      meeting: s.meeting,
+      at: month,
+    }));
   }
   return globalThis.__rallyMemory;
 }

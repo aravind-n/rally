@@ -99,10 +99,19 @@ export const handlers: { [K in ToolName]: (args: ToolArgs[K]) => Promise<ToolRes
   },
 
   send_mail: async (args) => {
-    // Claim verification — block "it's fixed" emails when incident is still open
+    // Claim verifier — block any email asserting resolution while incident is still open.
+    // Covers: "fixed", "resolved", "back up", "restored", "operational", "working again", etc.
     const claim = args.body.toLowerCase();
     const assertsFixed =
-      claim.includes('fixed') || claim.includes('resolved') || claim.includes('all good');
+      claim.includes('fixed') ||
+      claim.includes('resolved') ||
+      claim.includes('all good') ||
+      claim.includes('back up') ||
+      claim.includes('restored') ||
+      claim.includes('operational') ||
+      claim.includes('working again') ||
+      claim.includes('no longer') ||
+      claim.includes('fully functional');
     if (assertsFixed && globalThis.__incidentStatus === 'investigating') {
       const c = card('send_mail', 'Mail', args.subject, { status: 'failed' });
       pushCard(c);
@@ -273,10 +282,11 @@ async function runHermesTask(task: string, cardId: string, channel: string) {
       result = 'Hermes unreachable — task queued locally.';
     }
   } else {
-    // Canned answer seeded to match the demo script
+    // Canned answer — matches the November connection pool outage pattern
     result =
-      'Research complete: Safari 17.4 has a known fetch bug with request bodies over 8 MB ' +
-      '(Radar FB12345678). Workaround: chunk uploads to 4 MB. Fix ships in Safari 17.5.';
+      'Pattern confirmed: current error signature matches the November 14 connection pool exhaustion. ' +
+      'DB connections peaked at 100 (current max). Fix: set max_connections=500 in db.config, ' +
+      'restart app tier. November resolution took 12 minutes once fix was applied. — Rally';
   }
 
   // Post to Ambiguous Chat as Rally
