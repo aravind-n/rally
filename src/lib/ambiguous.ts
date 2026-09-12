@@ -1,8 +1,10 @@
 // Ambiguous REST client — switches between mock and live via AMBIGUOUS_MODE env var.
 // AMBIGUOUS_MODE=mock  → returns shaped fake data, no network calls
-// AMBIGUOUS_MODE=live  → calls https://app.ambiguous.ai/api/ with bearer key
+// AMBIGUOUS_MODE=live  → calls https://app.ambiguous.ai/api/<workspace>/ with bearer key
+// AMBIGUOUS_WORKSPACE  → workspace slug, defaults to 'team-rocket'
 
-const BASE = 'https://app.ambiguous.ai/api';
+const WORKSPACE = process.env.AMBIGUOUS_WORKSPACE ?? 'team-rocket';
+const BASE = `https://app.ambiguous.ai/api/${WORKSPACE}`;
 
 // Rally should use its own provisioned key (AMBIGUOUS_RALLY_KEY), falling back to admin key.
 // The Rally identity is provisioned once via POST /api/admin/users/provision-agent.
