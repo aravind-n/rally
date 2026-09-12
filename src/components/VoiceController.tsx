@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { startRallySimulation } from '@/lib/voice/sim';
 import { startRallyVoice } from '@/lib/voice/session';
+import { startBrowserSpeechRecognition } from '@/lib/voice/browser-speech';
 import { installKeyboardOverrides } from '@/lib/voice/overrides';
 
 export default function VoiceController() {
@@ -20,7 +21,11 @@ export default function VoiceController() {
     let cancelled = false;
     let stop: (() => void) | undefined;
 
-    startRallyVoice().then((cleanup) => {
+    const startVoice = params.get('realtime') === '1'
+      ? startRallyVoice
+      : startBrowserSpeechRecognition;
+
+    startVoice().then((cleanup) => {
       if (cancelled) cleanup();
       else stop = cleanup;
     });

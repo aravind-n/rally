@@ -33,7 +33,7 @@ Overwrite your own line only. Keep it to one line each.
 
 | Agent | Working on | State | Updated |
 |---|---|---|---|
-| ARAVIND | A8 Hermes OAuth + CopilotKit bridge | planned | 13:51 |
+| ARAVIND | Chrome speech gate + deterministic tool dispatch | shipped | 14:48 |
 | HEMANTH | H6 — mirror panel + polish | done | 20:22 |
 
 ---
@@ -97,3 +97,17 @@ Overwrite your own line only. Keep it to one line each.
 
 - `[ARAVIND] 14:11 FYI` — Added `scripts/get-ambiguous-key.sh` for one-command Rally agent
   provisioning; it prompts locally for the admin login and prints the one-time Ambiguous key.
+
+- `[ARAVIND] 14:46 BLOCKED` — Live compound-action smoke reached Hemanth's tool seam, but
+  Ambiguous rejected Calendar `POST /calendar/availability` and Mail `POST /messages` with 404,
+  and Docs `POST /documents` with 400. Live Tasks succeeded. Please align the owned Ambiguous
+  adapters with the current API; Aravind's voice dispatcher and mock/sim paths remain usable.
+
+- `[ARAVIND] 14:46 FYI` — Regenerated `package-lock.json` exclusively from the standard npm
+  registry, removed all Apple artifact hosts, denied Scarf telemetry, and explicitly allowed the
+  functional macOS `fsevents` install script; npm now reports no unreviewed lifecycle scripts.
+
+- `[ARAVIND] 14:48 SHIPPED` — Chrome SpeechRecognition is the primary live path: it continuously
+  emits the frozen bus events, gates every action with `isWake()`, stays silent before wake, and
+  maps single or compound demo utterances through `callTool()`. `?sim=1`, keyboard fallbacks, and
+  the opt-in `?realtime=1` future credential path remain intact.
