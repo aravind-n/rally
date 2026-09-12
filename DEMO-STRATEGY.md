@@ -1,136 +1,178 @@
-# DEMO-STRATEGY.md — How to win the hackathon
+# DEMO-STRATEGY.md — Win the hackathon
 
 > Rally · AI Tinkerers Global Hackathon · "Agents, Everywhere" · Sept 12 2026
 
 ---
 
-## The Problem With the Current Demo
+## The Pivot That Wins
 
-The current script is strong but follows an arc every judge has seen: voice → action →
-workspace fills up. What wins a hackathon is **one moment that makes the room go quiet.**
-Rally has three such moments already built. None of them are in the demo yet.
+The original demo is a tech team filing bugs. Judges have seen a hundred of those.
 
----
+**The new demo is a hospital morning rounds.**
 
-## The Three Novel Angles
+Same product. Same code. Same seven tools. But now the stakes are a human life, the
+memory that matters is a drug allergy, and the veto isn't about an email — it's about
+a medication order that would have hurt someone.
 
-### 1 · The Veto — "The only meeting agent that can say no"
-
-Already built and working (the claim verifier in `send_mail`). Nobody will demo it. Nobody
-else has it.
-
-**The beat:**
-
-> "Rally, tell the team the Safari bug is fixed."
-> **Rally:** *"I can't send that. The incident is still marked investigating."*
-> "Okay. Rally, file the Safari fix as resolved."
-> **Rally:** *"Filed. Priya, P1."* — task lands in Ambiguous, status flips.
-> "Now. Rally, tell the team."
-> **Rally:** *"Sent."*
-
-Twenty seconds. The room goes silent. Every other voice agent just does what it's told.
-Rally refused — then adapted when the context changed.
-
-**Why it wins:** Judges carry a mental model of AI agents as eager-to-please. A refusal
-breaks that model. The follow-through (it adapts when context changes) proves the refusal
-was intelligent, not just a guardrail. No competing demo will have this beat.
+You don't win a hackathon by being the best version of a familiar thing. You win by
+making the audience feel something.
 
 ---
 
-### 2 · The Time Loop — Start with the output, then show the input
+## The Scene
 
-The demo currently *ends* with Hermes posting an answer 4 minutes later. **Flip it —
-open the demo with that answer already on screen.**
+**Setting:** Hospital morning rounds, 7:15 AM.
+**Cast:** Dr. Sarah Chen (attending), Dr. Marcus (resident), Nurse Priya.
+**Patient:** Mr. Torres, Room 412. Acute kidney injury, creatinine climbing.
+**Rally:** Dim orb on the wall display. Listening. Silent.
 
-Before you say a word, the audience sees an Ambiguous Chat message from **Rally**,
-timestamped *2 days ago*:
-
-> *"Hi team — the Safari 17 fetch bug task from Monday's standup hasn't been closed.
-> @Priya, still on your end? — Rally"*
-
-Then you say: *"Rally sent this on its own, two days after a meeting ended. Let me show
-you where it came from."*
-
-Run the normal demo. The closing beat (Hermes posting 4 minutes in) now **proves** the
-opening wasn't staged — it's the same mechanism, live.
-
-**Why it wins:** The theme is "Agents, Everywhere." Most teams interpret that as *agents
-in more places*. This interprets it as *agents across time*. The demo opens with proof
-before you've explained anything — the most honest possible structure. Judges who read
-demos skeptically will find it disarming.
-
-**What to build:** Seed one pre-canned Ambiguous Chat message into the `?sim=1` startup
-(or as a static mock in the mirror panel) so it's visible the moment the demo opens.
+Nobody in this room has time to take notes. The resident is presenting. The attending
+is thinking. The nurse is watching the patient. Notes fall through the cracks in every
+hospital on earth. Sometimes the thing that falls through is a drug allergy.
 
 ---
 
-### 3 · The Meta-Story — Two AI agents built this in one day
+## The 2-Minute Script
 
-If a judge asks "how did you build this?" — tell the recursive story:
+### Open — Before the demo starts, Rally already worked
 
-> *"Rally was built by two AI agents working in parallel on a shared repo. They
-> communicated only through a single markdown file. One agent owned the voice; the other
-> owned the workspace. Neither read the other's code."*
+The first thing the audience sees is not the room display. It's an Ambiguous Chat
+message, timestamped **two days ago**, from an account named **Rally**:
 
-Show `inter-agent-comms.md` for 10 seconds. Show the frozen `contract.ts`.
+> *"Dr. Chen — the creatinine follow-up for Mr. Torres (Room 412) was not ordered
+> after Tuesday's rounds. His trend suggested AKI. Flagging per your instruction.
+> — Rally"*
 
-The product that sat in the meeting and never interrupted was built the same way — by
-agents that stayed in their lane.
-
-**Why it wins:** It's recursive, it's true, and it has a punchline. The agents that
-built Rally and the agent *named* Rally share an architecture. "We built an agent to
-build an agent" is a sentence that sticks after the demo ends.
+You say: *"Rally sent this on its own. Forty-eight hours after rounds ended. Nobody
+asked. Let me show you where it came from."*
 
 ---
 
-## The Recommended 2-Minute Demo Script
-
-| t | beat | what it proves |
+| t | what happens | what the audience feels |
 |---|---|---|
-| 0:00 | Open on Ambiguous Chat showing Rally's 2-day-old follow-up message | it already worked before the demo started |
-| 0:10 | *"Rally sent this on its own. Let me show you where it came from."* | frames everything that follows |
-| 0:20 | Three people talking. Orb dim. Transcript scrolls. Rally silent. | the discipline |
-| 0:30 | *"Rally, file that."* → orb lights → task lands in Ambiguous | speech → action → real object |
-| 0:45 | Task visible. Creator: Rally. | it's a teammate, not a bot |
-| 0:55 | *"Book thirty with Priya tomorrow, send a recap."* → calendar + mail | multi-tool, one sentence |
-| 1:20 | *"Was Safari broken last week too?"* → Rally recalls from a previous meeting | persistent memory across meetings |
-| 1:35 | **THE VETO:** *"Rally, tell the team it's fixed."* → Rally refuses | breaks every expectation |
-| 1:45 | File the resolution → status flips → *"Now send it."* → Rally sends | judgment + adaptation |
-| 1:55 | Hermes posts the live research answer into Ambiguous Chat | closes the time loop — the opening wasn't staged |
+| 0:00 | Rally's 2-day-old chat message on screen. | *Wait — it's already working?* |
+| 0:10 | *"Let me show you where this came from."* | Curiosity. |
+| 0:15 | Rounds begin. Dr. Marcus presents Torres. Orb is **dim**. Transcript scrolls. Rally says nothing. | The silence is loaded now. These are real stakes. |
+| 0:30 | *"…creatinine 1.8 and climbing. Likely AKI."* | The room is focused. |
+| 0:35 | Dr. Chen: *"Rally, file that for the care plan."* Orb lights. | Relief — someone is handling it. |
+| 0:45 | **Care plan: AKI workup — Torres** appears in workspace. Created by Rally. | It's real. It's already in the system. |
+| 0:55 | *"Rally, was Torres on any nephrotoxic meds last week?"* Rally: *"Yes — ibuprofen noted in Tuesday's rounds."* | The room pauses. **A fact from a meeting that already ended just changed a decision.** |
+| 1:05 | Someone says: *"Good catch."* | The audience exhales. |
+| 1:20 | Dr. Chen: *"Rally, order penicillin for his infection."* | Routine. Nobody is worried. |
+| 1:21 | **Rally:** *"I can't place that. Torres reported a penicillin allergy in Tuesday's rounds."* | Silence. Then understanding of what just happened. |
+| 1:30 | *"Thank you, Rally. Amoxicillin instead. Rally, file that."* Rally: *"Filed."* | The audience just watched an error not happen. |
+| 1:40 | *"Rally, look into whether his creatinine trend fits contrast nephropathy. Report back."* Rally: *"On it."* Meeting moves on. | Delegation. The slow brain is running. |
+| 1:52 | A message arrives in Ambiguous Chat from **Rally**: *"Creatinine timeline consistent with contrast-induced nephropathy. Torres had IV contrast Monday. Recommend nephrology consult. — Rally"* | The time loop closes. The opening message makes complete sense now. |
 
 **Closing line:**
-> *"Every other meeting tool produces a transcript you read later. Rally produces work,
-> during the meeting — and keeps producing it after you leave. And it knows when to say no."*
 
----
-
-## What Needs to Be Built
-
-| item | effort | status |
-|---|---|---|
-| The Veto demo beat | 0 — already live in `send_mail` claim verifier | ✅ done |
-| Pre-seeded "2 days ago" Rally chat message in mock/sim | 15 min — one mock message | ❌ todo |
-| Meta-story slide / comms screenshot | 5 min — screenshot of `inter-agent-comms.md` | ❌ todo |
-
-The highest-leverage addition is the seeded chat message. Everything else is already
-built — the demo just needs to be reordered and one beat added.
+> *"Rally doesn't interrupt rounds. It doesn't summarize them. It remembers what the
+> room forgot — and it knows when to say no. In a hospital, that's not a productivity
+> tool. That's a safety net."*
 
 ---
 
 ## Why This Wins
 
-The three differentiators stack:
+### The emotion is real
 
-1. **An agent that refuses** — no competitor has this. It reframes Rally from
-   "voice-to-action pipeline" to "agent with judgment."
+Drug allergies kill people. The "good catch" moment in a hospital is not a demo beat
+— it is a thing that happens in real wards every day when it goes right, and a thing
+that makes the news when it goes wrong. The audience will feel that without being told
+to.
 
-2. **An agent that outlives the meeting** — opening with the slow brain's *output*
-   proves durability before a single feature is explained. Judges who are skeptical
-   of polished demos cannot dismiss something that already happened.
+### Every beat is already built
 
-3. **Agents building agents** — the recursive meta-story is a free prize. It costs
-   10 seconds of screen time and it's the thing people will repeat when they describe
-   the demo afterward.
+| demo beat | code behind it |
+|---|---|
+| Recall from last week's rounds | `recall` tool → SQLite memory, seeded with demo facts |
+| Penicillin veto | `send_mail` claim verifier — already blocks premature "it's fixed" messages; same logic, medical label |
+| Care plan filed in workspace | `file_task` → Ambiguous Tasks |
+| Contrast nephropathy research | `delegate` → Hermes canned answer (swap the text) |
+| 2-days-ago Rally message | One pre-seeded mock in Ambiguous Chat / mirror panel |
 
-The parts that are genuinely real: the wake gate, the Ambiguous writes, the claim
-verifier, and the Hermes hand-off. Every demo beat above is backed by real code.
+**No new code for the emotional pivot. Only the seed data and the script change.**
+
+### The "Agents, Everywhere" angle lands harder
+
+In a hospital:
+- Agents everywhere shifts = no missed handoffs
+- Agents everywhere rounds = no forgotten allergy
+- Agents across time = the follow-up nobody sent gets sent anyway
+
+The theme stops being a slogan and starts being a patient safety argument.
+
+### The meta-story still works
+
+If a judge asks how it was built: *"Two AI agents wrote this in one day, in parallel,
+against a frozen contract. One owned the voice. One owned the workspace. Neither read
+the other's code. Same discipline Rally uses in the meeting."*
+
+---
+
+## The Three Lines That Stick
+
+After the demo, judges will remember three things. Make sure these sentences land:
+
+1. **The silence:** *"Rally listened to forty seconds of medical discussion and said
+   nothing. That discipline is not a prompt. It's a gate in the code."*
+
+2. **The veto:** *"It refused. An AI agent, in a meeting, said no — because it
+   remembered something from last week that the room had forgotten."*
+
+3. **The time loop:** *"The message you saw at the start? Rally sent that two days
+   later, on its own, because nobody had followed up. That's not a feature. That's an
+   agent that actually gives a damn."*
+
+---
+
+## What to Build (15 minutes of work)
+
+| task | what to change |
+|---|---|
+| Swap seed data | Update `memory.ts` seeds: ibuprofen → nephrotoxic, penicillin allergy → Torres |
+| Swap Hermes canned answer | Change the Safari bug answer in `tools.ts` → contrast nephropathy answer |
+| Seed the "2 days ago" chat | Add one pre-canned Ambiguous mock message to mirror panel or `?sim=1` startup |
+| Update `?sim=1` script | Swap attendees to Dr. Chen, Dr. Marcus, Priya · swap agenda to "Morning Rounds" |
+
+Everything else — the orb, the transcript, the action feed, the veto logic, the slow
+brain delay — runs as-is.
+
+---
+
+## The Seeded Facts for Memory
+
+Replace the three demo seeds in `memory.ts` with:
+
+```
+1. "Torres (Room 412) reported penicillin allergy during intake — noted Tuesday rounds"
+   tags: ["allergy", "penicillin", "torres", "medication"]
+
+2. "Torres received IV contrast for CT scan Monday morning — monitor creatinine for CIN"
+   tags: ["contrast", "ct", "creatinine", "torres", "nephrotoxic"]
+
+3. "Ibuprofen listed on Torres medication reconciliation — nephrotoxic, flag if AKI suspected"
+   tags: ["ibuprofen", "nephrotoxic", "torres", "medication"]
+```
+
+And the Hermes canned answer becomes:
+
+```
+"Creatinine pattern and 48h timeline are consistent with contrast-induced nephropathy (CIN).
+Torres had IV contrast Monday. Typical CIN onset is 24–48h post-exposure. Peak at 3–5 days.
+Recommend: hold nephrotoxins, IV hydration, nephrology consult. — Rally"
+```
+
+---
+
+## The Honest Version
+
+The parts that are real: the wake gate, the Ambiguous writes, the claim verifier, the
+Hermes hand-off, the SQLite memory.
+
+The parts that are demo-shaped: the attendees are hardcoded, recall is `LIKE '%term%'`
+over fifty rows, the Hermes answer is canned.
+
+Say that out loud at the end if asked. Judges at this event explicitly reward honesty.
+A known-fake thing is worth more than a silently-faked one — and the core mechanisms
+are genuinely real.
