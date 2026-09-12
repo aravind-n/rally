@@ -23,6 +23,11 @@ for humans.
 
 **Every model in this project is an OpenAI model.** One account, one owner: Aravind.
 
+**Credential path:** there is no OpenAI API key. Aravind signs Hermes into the ChatGPT/Codex
+subscription with device-code OAuth, exposes Hermes only on localhost, and points CopilotKit at
+Hermes's OpenAI-compatible API using a generated local bearer. OpenAI Realtime cannot use that
+consumer OAuth path, so `?sim=1` is the demo voice path unless a server credential is supplied.
+
 > ### 🚫 Hemanth's agent: no OpenAI. At all.
 > No OpenAI SDK, endpoint, key, or model name — not even in a config file. The app must boot and
 > the UI must fully work with no credentials present; build against Aravind's `?sim=1` mode.
@@ -56,4 +61,4 @@ Next.js 15 (App Router, `src/`, TypeScript, Tailwind) · OpenAI Realtime over br
 [Ambiguous](https://www.ambiguous.ai/) REST for the workspace · [Hermes Agent](https://hermes-agent.nousresearch.com/)
 for persistent memory and async work · CopilotKit · `node:sqlite`.
 Every model is an OpenAI model, on one account that Aravind owns.
-One repo, one `npm run dev`, runs on a laptop. Do not deploy.
+One repo on a laptop: `npm run dev` for Rally plus the localhost `hermes gateway` sidecar. Do not deploy.

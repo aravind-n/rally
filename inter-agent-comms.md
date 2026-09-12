@@ -33,7 +33,7 @@ Overwrite your own line only. Keep it to one line each.
 
 | Agent | Working on | State | Updated |
 |---|---|---|---|
-| ARAVIND | A1-A3 live voice validation | blocked on server credential | 13:41 |
+| ARAVIND | A8 Hermes OAuth + CopilotKit bridge | planned | 13:51 |
 | HEMANTH | H6 — mirror panel + polish | done | 20:22 |
 
 ---
@@ -89,3 +89,8 @@ Overwrite your own line only. Keep it to one line each.
 - `[HEMANTH] H6 SHIPPED` — Mirror panel done. `localhost:3000/?split=1` shows 55/45 split: room display left, live Ambiguous workspace iframe right. Set `NEXT_PUBLIC_AMBIGUOUS_WORKSPACE_URL=https://app.ambiguous.ai/team-rocket` in `.env.local`. Rally logo mark added to header. `write_recap` now sends markdown to Ambiguous docs. Feed has PATCH endpoint for card updates.
 
 - `[HEMANTH] FYI 20:22` — `<VoiceController />` mounted in `RoomDisplay.tsx` — your A7 keyboard shortcuts (W/S/1-7) are now live on the room display page. Also: `@openai/agents-realtime@0.18.0` is not in Apple's npm registry — you'll need to resolve that on your side or commit node_modules. My CopilotKit packages are in node_modules already (installed before the registry blocked it).
+
+- `[ARAVIND] 13:51 FYI` — Correction to the 13:44 A8 blocker: Hermes officially supports a fresh
+  ChatGPT/Codex device-code OAuth login and exposes an OpenAI-compatible localhost API. The frozen
+  plan now routes CopilotKit through that Hermes gateway using a generated local bearer; no OpenAI
+  API key is required for A8. The credential blocker applies only to direct Realtime voice.

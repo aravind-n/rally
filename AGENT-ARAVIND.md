@@ -7,9 +7,10 @@ every task. Post `SHIPPED` in comms when you finish A4 and A3 — those are the 
 **Your files.** Touch nothing else without a `FYI` in comms:
 ```
 src/app/api/rally/token/route.ts
+src/app/api/copilotkit/route.ts
 src/lib/voice/*
 src/components/VoiceController.tsx
-.env.local                  (OPENAI_API_KEY lives here and ONLY here)
+.env.local                  (local Hermes endpoint/bearer only; never commit)
 ```
 
 `src/lib/contract.ts` is already in the repo. `npm i @openai/agents zod` once Hemanth's H0
@@ -18,6 +19,11 @@ scaffold lands (~12:30); until then work in a scratch file.
 ---
 
 ## A0 · Ephemeral token route — 15 min
+
+**Optional live-voice path.** This build has no OpenAI API key. Keep the route ready for an
+explicitly supplied API or workload-identity credential, return a clear `503` without one, and do
+not block A3-A8 on it. ChatGPT/Codex OAuth cannot mint Realtime client secrets; `?sim=1` is the
+required demo path.
 
 `POST /api/rally/token` → mints a short-lived client secret so the browser never sees your key.
 
@@ -38,7 +44,8 @@ export async function POST() {
 }
 ```
 
-**Done when:** `curl -XPOST localhost:3000/api/rally/token` returns an `ek_...`.
+**Done when:** without a server credential the route returns a clear `503` and `?sim=1` still works;
+with a future server credential, it returns an `ek_...`.
 **If the payload shape has drifted**, the current docs are at
 <https://developers.openai.com/api/docs/guides/realtime>. Fix it here and move on — this route
 is 10 lines and it is not where your day goes.
@@ -243,49 +250,42 @@ Emit `{ t:'context', attendees, agenda }` on the bus so Hemanth can render the r
 
 ---
 
-## A8 · The OpenAI config surfaces — 30 min ⭐ start the Hermes half early, H3 is blocked on it
+## A8 · OAuth-backed Hermes + CopilotKit — 30 min ⭐ start early, H3 is blocked on it
 
-Everything in this project runs on OpenAI models. Two of those live outside your voice code, and
-both belong to you so that Hemanth never configures a model or holds a credential.
+There is no OpenAI API key. Hermes owns the ChatGPT/Codex OAuth session and becomes the one local
+text-model gateway. CopilotKit calls Hermes, never OpenAI directly.
 
-**1. Hermes's backing model** *(do this in sprint 1, not sprint 3 — H3 waits on it)*
-Install [Hermes Agent](https://hermes-agent.nousresearch.com/), sign it in against the team
-OpenAI account, point it at the current flagship text model, and leave it **running**. Hand
-Hemanth two things in `inter-agent-comms.md`: how to reach it locally (HTTP endpoint or CLI
-invocation) and confirmation that it's authenticated. He integrates against a live process and
-never touches its config.
+**1. Hermes OAuth + local gateway** *(do this in sprint 1, not sprint 3 — H3 waits on it)*
 
-**2. `src/app/api/copilotkit/route.ts`** — the CopilotKit runtime, on the OpenAI adapter.
-CopilotKit already splits server runtime from client hooks, so this is a clean seam: you own
-this one file, Hemanth owns `useCopilotReadable` / `useCopilotAction` / the sidebar.
+1. Install [Hermes Agent](https://hermes-agent.nousresearch.com/).
+2. Run `hermes model` → **ChatGPT or Codex Subscription** and complete the device-code OAuth login.
+   A fresh login is fine; importing `~/.codex/auth.json` is optional.
+3. Enable the API server in `~/.hermes/.env` with `API_SERVER_ENABLED=true` and a generated
+   `API_SERVER_KEY`, then run `hermes gateway`.
+4. Verify `http://127.0.0.1:8642/health` and one authenticated request to
+   `http://127.0.0.1:8642/v1/chat/completions` using model `hermes-agent`.
 
-```ts
-// src/app/api/copilotkit/route.ts  — Aravind only
-import { CopilotRuntime, OpenAIAdapter, copilotRuntimeNextJSAppRouterEndpoint } from '@copilotkit/runtime';
-import OpenAI from 'openai';
+Post `SHIPPED` with `HERMES_ENDPOINT=http://127.0.0.1:8642/v1` and confirmation that OAuth refresh
+works. Never paste the OAuth token or local bearer into comms.
 
-const serviceAdapter = new OpenAIAdapter({ openai: new OpenAI() });
-export const POST = async (req: Request) =>
-  copilotRuntimeNextJSAppRouterEndpoint({
-    runtime: new CopilotRuntime(), serviceAdapter, endpoint: '/api/copilotkit',
-  }).handleRequest(req);
-```
+**2. `src/app/api/copilotkit/route.ts`** — the CopilotKit runtime backed by Hermes.
+Run `npm install @copilotkit/runtime @ai-sdk/openai`. CopilotKit supports custom OpenAI-compatible
+providers. Configure its model client with
+`baseURL: 'http://127.0.0.1:8642/v1'`, model `hermes-agent`, and the local `API_SERVER_KEY` bearer.
+Hemanth owns `useCopilotReadable` / `useCopilotAction` / the sidebar.
 
-**On auth.** Use account sign-in where the tool actually offers it — Hermes and any desktop/CLI
-tooling will take your ChatGPT account directly. The two server routes here (`/api/rally/token`
-and `/api/copilotkit`) are plain server-to-server API calls and want a key: mint one from the
-same account and put it in `.env.local`. **Don't burn hackathon time trying to OAuth a Next.js
-route handler** — same account, same billing, one file, five minutes.
+The value passed as `apiKey` is Hermes's generated local bearer, not an OpenAI API key. Keep Hermes
+bound to `127.0.0.1`; do not expose its terminal-capable API server to the network.
 
 ## Checklist
 
-- [ ] A0 token route returns `ek_...`
+- [ ] A0 returns a safe `503` without a server credential; optional live path returns `ek_...`
 - [ ] A1 speech in, speech out
 - [ ] **A2 silent for 60s, wakes on "Rally", path documented in comms**
 - [ ] **A4 `?sim=1` plays the full demo with no API key — `SHIPPED` posted**
 - [ ] A3 all 7 tools declared and dispatching
 - [ ] A5 persona reads like a colleague at room volume
 - [ ] A6 attendees primed
-- [ ] **A8 Hermes installed, authed, running — posted in comms (H3 is blocked on this)**
-- [ ] A8 `/api/copilotkit` route live on the OpenAI adapter
+- [ ] **A8 Hermes OAuth login and localhost gateway work — posted in comms (H3 is blocked)**
+- [ ] A8 `/api/copilotkit` responds through Hermes with no OpenAI API key
 - [ ] A7 keyboard overrides + backup recording

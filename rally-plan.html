@@ -161,7 +161,7 @@ footer a{color:var(--a)}
   <div class="brain h">
     <div class="who">Hemanth owns</div>
     <div class="what">The slow brain</div>
-    <div class="tech">Hermes Agent · self-hosted, OpenAI model</div>
+    <div class="tech">Hermes Agent · self-hosted, ChatGPT/Codex OAuth</div>
     <dl>
       <dt>lifetime</dt><dd>forever</dd>
       <dt>latency</dt><dd>minutes to hours</dd>
@@ -191,7 +191,7 @@ footer a{color:var(--a)}
 </div>
 <p class="sub" style="margin-top:1em">Build only through 0:45 and you still have a demo. Everything after is upside, in order.</p>
 
-<h2>Architecture — one Next.js app, one <code>npm run dev</code></h2>
+<h2>Architecture — one Next.js app + one localhost Hermes gateway</h2>
 <pre class="arch">┌─ BROWSER ─────────────────────────┐          ┌─ SERVER ────────────────────────┐
 │ <b>RealtimeSession (WebRTC)</b>           │          │ <b>/api/rally/token</b>                │
 │   mic ─▶ gpt-realtime-2.1 ─▶ spk  │   POST   │ <i>/api/tools/[name]</i>               │
@@ -248,13 +248,13 @@ footer a{color:var(--a)}
     </ol>
   </div>
 </div>
-<p class="sub" style="margin-top:1.2em"><b>Hard rule.</b> Everything runs on OpenAI models <em>and</em> every line of OpenAI code is Aravind's. Those collide in exactly two places — Hermes's backing model and CopilotKit's runtime adapter — so both are pulled into his column as <b>A8</b>. Hemanth is handed a running, already-authenticated Hermes and a working <code>/api/copilotkit</code> route; he configures no model, holds no key, imports no OpenAI SDK. If his agent reaches for one, it stops and posts <code>BLOCKED</code> in <code>inter-agent-comms.md</code>.</p>
+<p class="sub" style="margin-top:1.2em"><b>Frozen credential path.</b> There is no OpenAI API key. Aravind signs Hermes into the ChatGPT/Codex subscription with device-code OAuth, runs its OpenAI-compatible API on <code>127.0.0.1:8642</code>, and points CopilotKit there with a generated local bearer. Realtime cannot use consumer OAuth, so <code>?sim=1</code> is the demo voice path. Hemanth is handed a running Hermes and a working <code>/api/copilotkit</code> route; he configures no model and holds no credential.</p>
 
 <h2>Timeline — 11:45 now, freeze at 18:00</h2>
 <div class="tl">
   <div class="row hd"><div>clock</div><div>Aravind</div><div>Hemanth</div></div>
   <div class="row sync"><div class="clock">11:45</div><div class="span">T0 · together — copy in <code>contract.ts</code>, agree the 7 tools · the only 30 min you must be in sync</div></div>
-  <div class="row"><div class="clock">12:15</div><div class="aa">A0 → A1 → <b>A2 wake gate</b> · <b>A8 Hermes auth</b></div><div class="hh"><b>H0 mocks first</b> (unblocks Aravind) → H1 display</div></div>
+  <div class="row"><div class="clock">12:15</div><div class="aa">A0 → A1 → <b>A2 wake gate</b> · <b>A8 Hermes OAuth + gateway</b></div><div class="hh"><b>H0 mocks first</b> (unblocks Aravind) → H1 display</div></div>
   <div class="row sync"><div class="clock">14:15</div><div class="span">Check 1 — say “Rally, file that” → a mock card renders on the display</div></div>
   <div class="row"><div class="clock">14:30</div><div class="aa">A3 dispatcher → A4 sim → A5 persona</div><div class="hh">H2 Ambiguous → H3 Hermes</div></div>
   <div class="row sync"><div class="clock">16:15</div><div class="span">Check 2 — full path live: voice → Ambiguous → screen</div></div>
@@ -304,7 +304,7 @@ footer a{color:var(--a)}
 </div>
 
 <h2>Deliberately not doing</h2>
-<p class="sub">Auth · multi-user · speaker diarization (label everything “Room”) · tests · error boundaries · migrations · deployment · mobile · Google Calendar OAuth. The demo runs on a laptop at <code>localhost:3000</code>. Speed over correctness, every time.</p>
+<p class="sub">App-user auth · multi-user · speaker diarization (label everything “Room”) · tests · error boundaries · migrations · deployment · mobile · Google Calendar OAuth. Hermes device OAuth is the only model login. The demo runs on a laptop at <code>localhost:3000</code>. Speed over correctness, every time.</p>
 
 <footer>
 Plan files: <code>PLAN.md</code> · <code>AGENT-ARAVIND.md</code> · <code>AGENT-HEMANTH.md</code> · <code>inter-agent-comms.md</code> · <code>contract.ts</code>.

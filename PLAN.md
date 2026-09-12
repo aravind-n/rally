@@ -69,14 +69,31 @@ If you build only rows 0:00–0:45, you still have a demo. Everything after is u
 | layer | choice | why |
 |---|---|---|
 | language | **TypeScript** | Realtime API's best browser path is JS; CopilotKit is React; one language for both agents |
-| app | **Next.js 15 (App Router)**, one repo, one `npm run dev` | route handlers = the backend. No second service. |
+| app | **Next.js 15 (App Router)**, one repo, one `npm run dev` | route handlers = the app backend; Hermes is the one localhost sidecar |
 | voice | **Realtime API over WebRTC, straight from the browser** | zero server audio plumbing. The single biggest corner cut available. |
 | hands | **Ambiguous REST** (`https://app.ambiguous.ai/api/...`, `Authorization: Bearer ak_...`) | agents get identity + Tasks/Mail/Calendar/Docs/Chat out of the box |
-| memory + long tail | **Hermes Agent**, self-hosted, on an OpenAI model | persistent, 40+ tools, scheduled automations, subagents |
-| copilot | **CopilotKit**, OpenAI adapter, runtime route owned by Aravind | in-app copilot prize; the split keeps Hemanth on the React side only |
+| memory + long tail | **Hermes Agent**, self-hosted, ChatGPT/Codex OAuth | persistent, 40+ tools, scheduled automations, subagents; no OpenAI API key |
+| copilot | **CopilotKit** through Hermes's localhost OpenAI-compatible API | in-app copilot prize without a direct OpenAI credential; Hemanth stays React-only |
 | styling | Tailwind + a dark room-display theme | it's going on camera |
 | storage | `node:sqlite` (built into Node 24, zero deps) | "persistent memory" on stage, no install |
-| deploy | `npm run dev` on Aravind's laptop + `ngrok` if needed | **do not deploy.** Demo is local. |
+| deploy | `npm run dev` + `hermes gateway` on Aravind's laptop | **do not deploy.** Demo is local. |
+
+### Credential path (frozen)
+
+There is **no OpenAI API key** for this build.
+
+1. Aravind installs Hermes and runs `hermes model` → **ChatGPT or Codex Subscription**. Hermes
+   completes a device-code OAuth login and owns token refresh in `~/.hermes/auth.json`.
+2. Aravind enables Hermes's localhost API server at `http://127.0.0.1:8642/v1` and generates an
+   `API_SERVER_KEY`. That key protects a local process; it is not an OpenAI credential.
+3. `/api/copilotkit` uses a custom OpenAI-compatible provider whose base URL is Hermes and whose
+   bearer is `API_SERVER_KEY`. CopilotKit never calls `api.openai.com` directly.
+4. ChatGPT/Codex OAuth does not mint Realtime client secrets. `/api/rally/token` may remain as an
+   optional future server-credential path, but `?sim=1` is the required voice path for this demo.
+
+Official references: [Hermes providers](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/integrations/providers.md),
+[Hermes API server](https://hermes-agent.nousresearch.com/docs/user-guide/features/api-server),
+[CopilotKit custom models](https://docs.copilotkit.ai/model-selection).
 
 ### Things we are deliberately NOT doing
 
@@ -127,12 +144,10 @@ lines, and it is frozen at T+0.
 
 ## 5. Ownership
 
-**Everything runs on OpenAI models, and every line of OpenAI code is Aravind's.** Those two facts
-collide in exactly two places — Hermes's backing model and CopilotKit's runtime adapter — so both
-are pulled into Aravind's column as **A8**. Hemanth consumes a configured Hermes process and a
-working `/api/copilotkit` route; he never sets a model name, never holds a key, never imports an
-OpenAI SDK. If his agent finds itself reaching for one, it stops and posts `BLOCKED` in
-`inter-agent-comms.md`. `.env.local` lives only on Aravind's machine.
+**Everything runs on OpenAI models, and every line of model-auth code is Aravind's.** Hermes owns
+the ChatGPT/Codex OAuth session; CopilotKit consumes Hermes rather than authenticating with OpenAI.
+Both remain in Aravind's **A8**. Hemanth consumes a configured Hermes process and a working
+`/api/copilotkit` route; he never sets a model name, holds a credential, or imports an OpenAI SDK.
 
 ### Aravind — the fast brain → `AGENT-ARAVIND.md`
 `A0` token route · `A1` voice loop · `A2` **wake-word gate** · `A3` tool dispatcher ·
@@ -153,7 +168,7 @@ OpenAI SDK. If his agent finds itself reaching for one, it stops and posts `BLOC
 | clock | | Aravind | Hemanth |
 |---|---|---|---|
 | **11:45–12:15** | **T0 · together** | copy `contract.ts` in, read it aloud to each other, agree the 7 tools. **The only 30 minutes you must be in sync.** | ← same, plus `create-next-app` |
-| 12:15–14:15 | sprint 1 | A0 → A1 → **A2** · **A8 Hermes install/auth early — H3 waits on it** | **H0 mocks first (45 min, unblocks Aravind)** → H1 |
+| 12:15–14:15 | sprint 1 | A0 → A1 → **A2** · **A8 Hermes OAuth + gateway early — H3 waits on it** | **H0 mocks first (45 min, unblocks Aravind)** → H1 |
 | **14:15–14:30** | **check 1** | say "Rally, file that" → a mock card renders on Hemanth's UI | ← same |
 | 14:30–16:15 | sprint 2 | A3 → A4 → A5 | H2 Ambiguous → H3 Hermes |
 | **16:15–16:45** | **check 2** | **full path live: voice → Ambiguous → screen** | ← same |
