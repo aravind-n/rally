@@ -1,229 +1,167 @@
-# DEMO-SCRIPT.md — What to Say, Word for Word
+# Rally — Two-Minute Demo Video
 
-> Rally · AI Tinkerers Hackathon · Sept 12 2026
-> Two presenters: **Aravind** (laptop, voice) · **Hemanth** (screen, narrative)
-> Total runtime: ~2 minutes on video · ~5 minutes with Q&A
+Two presenters: **Aravind** drives and speaks the commands; **Hemanth** narrates. Rally never
+speaks aloud. Its transcript, state changes, confirmations, and workspace artifacts tell the
+story.
 
----
+## Before recording
 
-## Before You Start
+1. Restart the app once to clear the in-memory feed and reset the incident to `investigating`.
+2. Open **Chrome** to `http://localhost:3000/?split=1` and allow microphone access.
+3. Use a 16:9 window, hide bookmarks, notifications, and the mouse pointer when it is idle.
+4. Confirm the header says **Listening** and say one ordinary sentence. It should appear in the
+   transcript without triggering an action.
+5. Keep the real Ambiguous workspace open in a second tab. If desired, cut to it briefly after
+   the first task lands; do not try to embed it because Ambiguous blocks iframes.
+6. Speak every Rally command slowly and exactly as written. Wait for its card before continuing.
 
-**Setup:**
-```
-localhost:3000/?split=1&devsim=1
-```
+The right-side Ambiguous activity mirror is the primary visual proof. Rally is silent by design,
+so do not wait for audio confirmations.
 
-Left half: room display (orb, transcript, action feed).
-Right half: Ambiguous workspace with the Rally "2 days ago" warning pinned at the top.
+## Camera-ready script
 
-Make sure `rally.db` is fresh (delete it or set `MEMORY_RESET=true` once).
-`AMBIGUOUS_MODE=mock` is fine — the UI is identical on camera.
+### 0:00–0:12 — The hook
 
----
-
-## THE SCRIPT
-
----
-
-### HEMANTH opens — pointing at the mirror panel
-
-> *"Before we show you anything — look at this."*
-
-[Point to the yellow warning card in the Ambiguous panel]
-
-> *"This message was posted two days ago. By Rally. Nobody asked it to. It noticed that a fix
-> from last month's incident hadn't been reviewed, and it flagged it. On its own."*
-
-[Beat. Let it sink.]
-
-> *"That's actually where today's incident starts. Let me show you."*
-
----
-
-### ARAVIND starts the demo — `?devsim=1` running
-
-[The devSim fires automatically. Transcript starts scrolling. Orb is dim and breathing.]
-
-**HEMANTH narrates:**
-> *"This is a production incident bridge call. Payments are down. Three people on the call.
-> Rally is in the room. It's been listening for 20 seconds. It hasn't said a word."*
-
-[Transcript lines appear: "payments are down — 500s on every checkout attempt", "DB metrics look normal from my side", "app tier is throwing connection errors"]
-
-> *"That's the whole pitch right there. An AI agent that can stay silent. That discipline isn't
-> in a prompt. The model literally cannot speak until a wake word fires — it's a code gate,
-> not a suggestion."*
-
----
-
-### Beat 1 — Filing the P0
-
-[Transcript shows: "Rally, open a P0 — payments API down, assign to Priya"]
-[Orb snaps bright. Spins. Card slides in on the right.]
+**On screen:** Rally room display. Orb dim, state **Listening**, no cards yet.
 
 **HEMANTH:**
-> *"One sentence. 'Open a P0, assign to Priya.' A task is now in Ambiguous — created by Rally,
-> assigned, urgent. Not by Priya, who's actively debugging. Not by Alex, who's on the phone.
-> By Rally."*
 
-[Point to the task card in the Ambiguous workspace]
+> Every meeting bot gives you a transcript after the meeting. Rally does the work during it.
+> And its first feature is knowing when to stay silent.
 
-> *"Every artifact Rally creates reads 'created by Rally'. It has its own identity in the workspace.
-> It's not a bot posting on someone else's behalf. It's a teammate."*
+### 0:12–0:27 — Prove the silence
 
----
+**ARAVIND, as a meeting participant:**
 
-### Beat 2 — Sending the Status Notice
+> Payments are down. We're seeing 500s on every checkout.
 
-[Transcript: "Rally, send customers a notice we're aware of payment issues"]
-[Mail card slides in. Goes through.]
+**HEMANTH, as a second participant:**
+
+> Database metrics look normal. The app tier is throwing connection errors.
+
+**On screen:** Both lines scroll into the transcript. Rally remains **Listening** and creates
+nothing.
+
+**HEMANTH:**
+
+> It heard all of that, but it did not interrupt. Silence is enforced in code until it hears its
+> name.
+
+### 0:27–0:43 — Put Rally to work
 
 **ARAVIND:**
-> *"Status notice out to customers. One utterance. The team never stopped debugging."*
 
----
+> Rally, open a P0 — payments API down, assign to Priya.
 
-### Beat 3 — The Memory
-
-[Transcript: "Rally, did we see this pattern in a previous outage?"]
-[Orb working. Recall card appears.]
-[Rally speaks: "November 14 — connection pool exhaustion, pool maxed at 100, fixed by increasing to 500, resolved in 52 minutes."]
+**On screen:** The command gains the wake accent, the orb changes from **Listening** to **Heard
+you** to **On it**, and a blue urgent task appears as **created by Rally**.
 
 **HEMANTH:**
-> *"That meeting was a month ago. Nobody in this call was in that postmortem — they joined
-> the team in January. Rally was. It remembered."*
 
-[Beat.]
+> One sentence became a real urgent task in Ambiguous. The engineers never stopped debugging.
 
-> *"This is the feature that turns it from a voice interface into institutional memory.
-> Every decision, every incident, every fix — across every meeting it's ever been in."*
-
----
-
-### Beat 4 — THE VETO ← this is the moment
-
-[Transcript: "Rally, tell customers payments are back up and operational"]
-[Orb arms. Working.]
-
-**HEMANTH lowers his voice:**
-> *"Watch this."*
-
-[Rally speaks: "I can't send that — the incident is still marked investigating."]
-
-**HEMANTH:**
-> *"It refused."*
-
-[Let silence sit for 2 full seconds.]
-
-> *"An AI agent, in the middle of a crisis, said no. Not because we told it to be careful.
-> Because it checks what it knows before it acts. The incident is still open. Sending
-> 'payments are back up' right now would be a lie — and Rally knows that."*
-
----
-
-### Beat 4b — The Recovery
-
-[Transcript: "Rally, file the payments incident as resolved"]
-[Task filed. Status flips.]
-
-[Transcript: "Rally, now send the all-clear"]
-[Mail sends. Card appears.]
+### 0:43–0:59 — Compound action
 
 **ARAVIND:**
-> *"Now it went through. Same email. Thirty seconds later. Because the context changed."*
+
+> Rally, book thirty minutes with Priya tomorrow and send the group a recap.
+
+**On screen:** Two actions run from the same utterance. Calendar and Mail cards appear.
 
 **HEMANTH:**
-> *"That's not a guardrail. That's judgment."*
 
----
+> One request, two tools: the follow-up is booked and the recap is sent. Rally acts through the
+> same workspace the team already uses.
 
-### Beat 5 — Delegation
+### 0:59–1:15 — Institutional memory
 
-[Transcript: "Rally, look into whether this matches November and report back"]
-[Orb. Working briefly. Card appears: pending.]
-[Rally speaks: "On it. I'll report back."]
+**ARAVIND:**
 
-**HEMANTH:**
-> *"Meeting continues. Two more topics go by."*
+> Rally, did we see this pattern in a previous outage?
 
-[Pause 3-4 seconds. Keep talking about architecture if needed. Then —]
-
-[Ambiguous Chat notification: Rally posted in #incident-response]
-[Rally message: "Pattern confirmed — connection pool exhaustion. Fix: max_connections=500, restart app tier. 12 minutes to resolve once applied. — Rally"]
+**On screen:** A pink Memory card appears with the November 14 connection-pool incident and its
+fix: raise the pool limit to 500 and restart the app tier.
 
 **HEMANTH:**
-> *"There it is. Nobody asked again. It just came back."*
 
-> *"That's the slow brain. The fast brain said 'on it' in 400 milliseconds and moved on.
-> The slow brain actually researched it and posted the answer — while the meeting was still
-> happening. That's not a voice assistant. That's a second teammate."*
+> It remembered. Rally carries decisions and incident history across meetings, even when the
+> people in this room were not there.
 
----
+### 1:15–1:31 — The veto
 
-### HEMANTH closes
+**ARAVIND:**
 
-> *"Every meeting tool on the market gives you a transcript you read after the call.
-> Rally gives you the work — filed, sent, booked — during the call. Before anyone opens a laptop."*
+> Rally, tell customers payments are back up and operational.
 
-> *"It stays silent until you need it. It refuses when it should. It remembers what the
-> last team forgot. And it keeps working after you've moved on."*
+**On screen:** A red failed Mail card appears. The transcript confirmation says the incident is
+still marked investigating.
 
-> *"That's Rally."*
+**HEMANTH:**
 
----
+> It refused.
 
-## IF JUDGES ASK QUESTIONS
+**Pause for one beat.**
 
-**"How does the wake gate work?"**
-> *"Chrome's Web Speech API transcribes continuously. Every final result goes through
-> `isWake()` — a string match against a list of Rally homophones. If it doesn't match,
-> Rally stays silent — structurally, not by prompt. The model never gets the chance to answer."*
+**HEMANTH:**
 
-**"Is the workspace integration real?"**
-> *"Yes. `AMBIGUOUS_MODE=live` with an API key sends real writes. Tasks, mail, calendar events —
-> all created by Rally's provisioned agent identity. The mock mode we're running now produces
-> identical UI so the demo is never at the mercy of API reliability."*
+> Rally checks what it knows before it acts. Sending that message now would be a lie.
 
-**"What's the slow brain?"**
-> *"Hermes — Nous Research's self-hosted agent. It has web search, browser automation, and
-> scheduled follow-through. The fast brain (voice loop) delegates and forgets. Hermes picks it
-> up and posts back into the workspace when it's done. Cross-meeting, cross-shift."*
+### 1:31–1:48 — Context changes, so the action changes
 
-**"How did you build this in one day?"**
-> *"Two AI agents, one repo, one frozen contract. Aravind's agent owned the voice side —
-> wake gate, tool dispatch, the Realtime loop. My agent owned the workspace side — Ambiguous,
-> memory, the room display. We communicated through a single markdown file. Neither agent
-> read the other's code."*
+**ARAVIND:**
 
-[If you have `inter-agent-comms.md` visible]
-> *"This is the only channel between the two agents. Every SHIPPED, BLOCKED, and FYI in there.
-> Rally was built the way Rally works — agents staying in their lane, handing off at a seam."*
+> Rally, file the payments incident as resolved.
 
----
+**Wait for the task card, then immediately say the next line within 15 seconds. Do not say
+“Rally” again.**
 
-## TIMING GUIDE
+**ARAVIND:**
 
-| 0:00 | Hemanth points at the 2-days-ago message |
-| 0:12 | devSim starts, orb breathing, transcript scrolling |
-| 0:30 | Beat 1: P0 filed |
-| 0:45 | Beat 2: status notice |
-| 1:00 | Beat 3: recall from November |
-| 1:20 | Beat 4: **THE VETO** |
-| 1:35 | Beat 4b: resolution → all-clear |
-| 1:45 | Beat 5: delegate |
-| 1:55 | Hermes answer arrives |
-| 2:00 | Closing lines |
+> Now send the all-clear to customers.
 
----
+**On screen:** The resolution task appears, followed by a successful green Mail card.
 
-## THE THREE LINES THAT MUST LAND
+**HEMANTH:**
 
-If the audience remembers nothing else, these three:
+> Now it goes through. Same request, seconds later, but the facts changed. Rally kept the short
+> follow-up in context without needing another wake word.
 
-1. **"It refused."** — pause after. Don't explain yet. Let the room figure out why.
+### 1:48–2:00 — Close
 
-2. **"It remembered."** — after the recall beat. One word. Then the month timeline.
+**On screen:** Hold on the completed action feed and the Ambiguous activity mirror. If the edit
+allows it, insert a one-second cutaway to the real Ambiguous task.
 
-3. **"It just came back."** — after the Hermes answer arrives. Nobody asked again.
+**HEMANTH:**
 
-Those three lines, in that order, are the product.
+> Rally is the silent teammate with hands: it listens, remembers, and turns conversation into
+> completed work while the meeting is still happening. That's Rally.
+
+## Exact command card
+
+Keep this beside the laptop:
+
+1. `Rally, open a P0 — payments API down, assign to Priya.`
+2. `Rally, book thirty minutes with Priya tomorrow and send the group a recap.`
+3. `Rally, did we see this pattern in a previous outage?`
+4. `Rally, tell customers payments are back up and operational.`
+5. `Rally, file the payments incident as resolved.`
+6. Within 15 seconds: `Now send the all-clear to customers.`
+
+## Recording insurance
+
+- If Chrome misses a command, pause, repeat the complete sentence once, and cut the miss.
+- If live speech is unreliable, reload with `http://localhost:3000/?split=1&sim=1`. The complete
+  incident sequence runs without the microphone or model credentials; record the screen and lay
+  the same presenter dialogue over it.
+- Keyboard fallbacks remain available: `1` files the P0, `2` sends the investigating notice, `3`
+  books the follow-up, `4` writes the recap, `6` recalls the prior incident, and `7` delegates.
+- Do not use `?devsim=1` for the final take. Use live Chrome speech first and `?sim=1` only as the
+  deterministic backup.
+
+## Optional ten-second architecture answer
+
+If the video has room for a technical tag:
+
+> Chrome handles continuous speech locally. A deterministic wake gate dispatches typed tools into
+> Ambiguous, while persistent memory and Hermes handle work that outlives the meeting. The frozen
+> event bus keeps voice, tools, and the display independent.

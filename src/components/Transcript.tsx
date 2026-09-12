@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useRef } from 'react';
+
 export interface TranscriptLine {
   id: string;
   text: string;
@@ -13,6 +15,14 @@ interface TranscriptProps {
 }
 
 export default function Transcript({ lines }: TranscriptProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const transcript = scrollRef.current;
+    if (!transcript) return;
+    transcript.scrollTo({ top: transcript.scrollHeight, behavior: 'smooth' });
+  }, [lines]);
+
   if (lines.length === 0) {
     return (
       <div className="flex-1 flex items-start pt-6">
@@ -21,13 +31,11 @@ export default function Transcript({ lines }: TranscriptProps) {
     );
   }
 
-  const visible = lines.slice(-14);
-
   return (
     <div className="flex-1 flex flex-col gap-0.5 overflow-hidden min-h-0">
       <div className="text-[10px] tracking-[0.2em] text-white/20 mb-2 uppercase">Transcript</div>
-      <div className="flex flex-col gap-1.5 overflow-hidden">
-        {visible.map((line, i) => {
+      <div ref={scrollRef} className="flex-1 min-h-0 flex flex-col gap-1.5 overflow-y-auto pr-2">
+        {lines.map((line, i) => {
           const isRally = line.speaker === 'Rally';
           return (
             <div

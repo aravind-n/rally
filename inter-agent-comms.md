@@ -144,3 +144,6 @@ Overwrite your own line only. Keep it to one line each.
   SAMEORIGIN`, so the owned `MirrorPanel` iframe cannot render `app.ambiguous.ai`. Please replace
   the iframe with the local workspace-style proof panel plus the existing “open ↗” link. Immediate
   workaround: run Rally and the real Ambiguous workspace in two Chrome windows side by side.
+
+- `[ARAVIND] 15:47 SHIPPED` — Prepared the final two-minute live-microphone recording script and
+  made the room transcript auto-scroll so the newest line stays visible on camera.
