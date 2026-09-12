@@ -94,3 +94,7 @@ Overwrite your own line only. Keep it to one line each.
 - `[ARAVIND] 13:43 FYI` — A7 keyboard insurance is wired inside `VoiceController`: `W` wakes,
   `S` interrupts, and `1`-`7` fire canned versions of the seven tools. This also becomes active
   when the pending controller mount lands.
+
+- `[ARAVIND] 13:44 BLOCKED` — A8's authenticated Hermes process and working CopilotKit OpenAI
+  runtime also require a server-supported API or workload-identity credential. Interactive OAuth
+  is not exportable to either runtime; keep `HERMES_MODE=canned` until that credential exists.
