@@ -5,10 +5,14 @@ integration, the persistent brain, the copilot, and the entire screen the judges
 
 > ### 🚫 HARD RULE
 > **You never install an OpenAI SDK, call an OpenAI endpoint, set an OpenAI key, or type an
-> OpenAI model name.** The app must boot and the UI must fully work with no `OPENAI_API_KEY`
-> present. If a task seems to need one, **stop and post `BLOCKED` in `inter-agent-comms.md`** —
-> that work is Aravind's. Your LLM calls, where you need them, go to **Anthropic** or
-> **OpenRouter**.
+> OpenAI model name** — not even in a config file. The app must boot and the UI must fully work
+> with no credentials present. If a task seems to need one, **stop and post `BLOCKED` in
+> `inter-agent-comms.md`** — that work is Aravind's.
+>
+> Everything in this project runs on OpenAI models, so the two spots where that could bite you
+> are already carved out as Aravind's **A8**: he hands you a **running, already-authenticated
+> Hermes process** (H3) and a **working `/api/copilotkit` runtime route** (H5). You integrate
+> against both and configure neither.
 
 Read `PLAN.md` for the product, `contract.ts` for the interface, `inter-agent-comms.md` before
 every task.
@@ -150,11 +154,13 @@ Same for `send_mail.to` — fuzzy-match first names against the attendee roster.
 
 [Hermes Agent](https://hermes-agent.nousresearch.com/) (Nous Research, open source, self-hosted)
 is Rally's persistent half: it runs between meetings, remembers across them, and finishes the
-long tail. **Point it at Anthropic or OpenRouter — not OpenAI.**
+long tail.
 
-```bash
-# install per hermes-agent.nousresearch.com, then point it at a non-OpenAI model
-```
+**Aravind installs it, authenticates it and picks its model (A8).** Your job starts at a process
+that is already running. He posts the local endpoint or CLI invocation in
+`inter-agent-comms.md`; if it isn't there by 14:30, post `BLOCKED` and build against a stub that
+returns a canned answer after 30 seconds. Do not install or configure it yourself — that's an
+OpenAI credential and it isn't yours.
 
 Two jobs:
 
@@ -171,10 +177,14 @@ handler, fire-and-forget, and let it post to Ambiguous itself. Nobody is reading
 
 **2. Cross-meeting memory** — Hermes's persistent memory backs `recall`.
 
-**Guardrail:** Hermes is the most novel dependency here and it is also the *last* item in the
-cut list. Timebox it to 1 hour. If it isn't answering by then, `delegate` falls back to a
-`setTimeout` + a canned Ambiguous Chat post, and you tell the truth on stage about what's
-real — judges at this event explicitly reward "here's what broke."
+**Guardrail:** timebox the *install* to 1 hour, not the idea. If Hermes isn't answering by
+15:30, degrade `delegate` to a `setTimeout` + a canned Ambiguous Chat post so the demo beat
+survives, keep the real path behind `HERMES_MODE=live|canned`, and say plainly on stage which
+one is running — judges at this event explicitly reward "here's what broke."
+
+**Do not drop Hermes to save time on H5.** It carries the last two beats of the demo and the
+persistence story the organizers care most about; CopilotKit carries neither. If you're behind,
+H5 goes first.
 
 ---
 
@@ -200,9 +210,9 @@ of which is the Safari answer. That's what makes the 1:20 beat land.
 
 ## H5 · CopilotKit sidebar — 45 min · prize, optional
 
-[CopilotKit](https://docs.copilotkit.ai/) with the
-**[AnthropicAdapter](https://docs.copilotkit.ai/reference/classes/llm-adapters/AnthropicAdapter)** —
-non-OpenAI, so it stays cleanly in your lane, and it's a separate best-use prize.
+[CopilotKit](https://docs.copilotkit.ai/) splits cleanly down the middle: Aravind owns the runtime
+route at `src/app/api/copilotkit/route.ts` (A8, OpenAI adapter), **you own everything React** —
+`<CopilotKit>`, `<CopilotSidebar>`, and the hooks. It's a separate best-use prize.
 
 The angle: Rally acts *during* the meeting by voice; the sidebar is how you **correct it after**,
 by text, without leaving the room display. "Reassign that ticket to Sam." "Add a line to the
@@ -236,8 +246,8 @@ Then: a title card, Rally's avatar, and a `README.md` with the two-brain diagram
 - [ ] **H0 all 7 mock endpoints live — `SHIPPED` posted (Aravind is blocked until this)**
 - [ ] **H1 room display; the dim listening orb is genuinely beautiful**
 - [ ] H2 real Ambiguous writes, **created by Rally**, deep links in cards
-- [ ] H3 `delegate` → Hermes → unprompted Ambiguous Chat message
+- [ ] H3 `delegate` → Aravind's Hermes → unprompted Ambiguous Chat message
 - [ ] H4 memory seeded with last week's facts
-- [ ] H5 CopilotKit sidebar (AnthropicAdapter) — cut first if behind
+- [ ] H5 CopilotKit sidebar, React side only — cut first if behind
 - [ ] H6 mirror panel + README
 - [ ] **Zero OpenAI imports.** `grep -ri openai src | grep -v 'api/rally\|lib/voice'` is empty.

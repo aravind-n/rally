@@ -72,8 +72,8 @@ If you build only rows 0:00–0:45, you still have a demo. Everything after is u
 | app | **Next.js 15 (App Router)**, one repo, one `npm run dev` | route handlers = the backend. No second service. |
 | voice | **Realtime API over WebRTC, straight from the browser** | zero server audio plumbing. The single biggest corner cut available. |
 | hands | **Ambiguous REST** (`https://app.ambiguous.ai/api/...`, `Authorization: Bearer ak_...`) | agents get identity + Tasks/Mail/Calendar/Docs/Chat out of the box |
-| memory + long tail | **Hermes Agent**, self-hosted, pointed at a non-OpenAI model | persistent, 40+ tools, scheduled automations, subagents |
-| copilot | **CopilotKit** with the **AnthropicAdapter** | in-app copilot prize, and a non-OpenAI adapter keeps it in Hemanth's lane |
+| memory + long tail | **Hermes Agent**, self-hosted, on an OpenAI model | persistent, 40+ tools, scheduled automations, subagents |
+| copilot | **CopilotKit**, OpenAI adapter, runtime route owned by Aravind | in-app copilot prize; the split keeps Hemanth on the React side only |
 | styling | Tailwind + a dark room-display theme | it's going on camera |
 | storage | `node:sqlite` (built into Node 24, zero deps) | "persistent memory" on stage, no install |
 | deploy | `npm run dev` on Aravind's laptop + `ngrok` if needed | **do not deploy.** Demo is local. |
@@ -127,13 +127,17 @@ lines, and it is frozen at T+0.
 
 ## 5. Ownership
 
-**Hard rule: every line of OpenAI code is Aravind's.** If Hemanth's agent finds itself reaching
-for an OpenAI SDK, endpoint, model name, or key — it stops and posts `BLOCKED` in
-`inter-agent-comms.md`. `OPENAI_API_KEY` lives only in Aravind's `.env.local`.
+**Everything runs on OpenAI models, and every line of OpenAI code is Aravind's.** Those two facts
+collide in exactly two places — Hermes's backing model and CopilotKit's runtime adapter — so both
+are pulled into Aravind's column as **A8**. Hemanth consumes a configured Hermes process and a
+working `/api/copilotkit` route; he never sets a model name, never holds a key, never imports an
+OpenAI SDK. If his agent finds itself reaching for one, it stops and posts `BLOCKED` in
+`inter-agent-comms.md`. `.env.local` lives only on Aravind's machine.
 
 ### Aravind — the fast brain → `AGENT-ARAVIND.md`
 `A0` token route · `A1` voice loop · `A2` **wake-word gate** · `A3` tool dispatcher ·
-`A4` bus + `?sim=1` · `A5` persona & confirm-out-loud · `A6` context priming · `A7` safety net
+`A4` bus + `?sim=1` · `A5` persona & confirm-out-loud · `A6` context priming · `A7` safety net ·
+`A8` OpenAI config surfaces (Hermes model + CopilotKit runtime)
 
 ### Hemanth — the hands, the slow brain, the screen → `AGENT-HEMANTH.md`
 `H0` scaffold + mocks · `H1` **room display** · `H2` Ambiguous tool belt · `H3` **Hermes Agent** ·
@@ -149,7 +153,7 @@ for an OpenAI SDK, endpoint, model name, or key — it stops and posts `BLOCKED`
 | clock | | Aravind | Hemanth |
 |---|---|---|---|
 | **11:45–12:15** | **T0 · together** | copy `contract.ts` in, read it aloud to each other, agree the 7 tools. **The only 30 minutes you must be in sync.** | ← same, plus `create-next-app` |
-| 12:15–14:15 | sprint 1 | A0 → A1 → **A2** | **H0 mocks first (45 min, unblocks Aravind)** → H1 |
+| 12:15–14:15 | sprint 1 | A0 → A1 → **A2** · **A8 Hermes install/auth early — H3 waits on it** | **H0 mocks first (45 min, unblocks Aravind)** → H1 |
 | **14:15–14:30** | **check 1** | say "Rally, file that" → a mock card renders on Hemanth's UI | ← same |
 | 14:30–16:15 | sprint 2 | A3 → A4 → A5 | H2 Ambiguous → H3 Hermes |
 | **16:15–16:45** | **check 2** | **full path live: voice → Ambiguous → screen** | ← same |
@@ -157,9 +161,13 @@ for an OpenAI SDK, endpoint, model name, or key — it stops and posts `BLOCKED`
 | **17:45–18:00** | **FREEZE** | nothing merges. rehearse the script 3×. | ← same |
 | 18:00–19:00 | ship | record video · README · social post | ← same |
 
-**Cut order if you're behind** (drop from the bottom): CopilotKit sidebar → Hermes delegation →
-memory recall → `write_recap` → `book_slot`. **Never cut:** the wake-word gate, `file_task`,
-the room display, the Ambiguous mirror.
+**Cut order if you're behind** — drop the leftmost thing still standing:
+CopilotKit sidebar → `write_recap` → `book_slot` → Hermes's scheduled follow-through →
+Hermes `delegate`.
+
+**Never cut:** the wake-word gate · `file_task` · the room display · the Ambiguous mirror ·
+`recall`. Note that CopilotKit appears nowhere in §2's demo script and Hermes carries its last
+two beats — cut the prize-chasing sidebar long before you touch the second brain.
 
 ---
 

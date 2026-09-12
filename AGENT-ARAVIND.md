@@ -243,6 +243,40 @@ Emit `{ t:'context', attendees, agenda }` on the bus so Hemanth can render the r
 
 ---
 
+## A8 · The OpenAI config surfaces — 30 min ⭐ start the Hermes half early, H3 is blocked on it
+
+Everything in this project runs on OpenAI models. Two of those live outside your voice code, and
+both belong to you so that Hemanth never configures a model or holds a credential.
+
+**1. Hermes's backing model** *(do this in sprint 1, not sprint 3 — H3 waits on it)*
+Install [Hermes Agent](https://hermes-agent.nousresearch.com/), sign it in against the team
+OpenAI account, point it at the current flagship text model, and leave it **running**. Hand
+Hemanth two things in `inter-agent-comms.md`: how to reach it locally (HTTP endpoint or CLI
+invocation) and confirmation that it's authenticated. He integrates against a live process and
+never touches its config.
+
+**2. `src/app/api/copilotkit/route.ts`** — the CopilotKit runtime, on the OpenAI adapter.
+CopilotKit already splits server runtime from client hooks, so this is a clean seam: you own
+this one file, Hemanth owns `useCopilotReadable` / `useCopilotAction` / the sidebar.
+
+```ts
+// src/app/api/copilotkit/route.ts  — Aravind only
+import { CopilotRuntime, OpenAIAdapter, copilotRuntimeNextJSAppRouterEndpoint } from '@copilotkit/runtime';
+import OpenAI from 'openai';
+
+const serviceAdapter = new OpenAIAdapter({ openai: new OpenAI() });
+export const POST = async (req: Request) =>
+  copilotRuntimeNextJSAppRouterEndpoint({
+    runtime: new CopilotRuntime(), serviceAdapter, endpoint: '/api/copilotkit',
+  }).handleRequest(req);
+```
+
+**On auth.** Use account sign-in where the tool actually offers it — Hermes and any desktop/CLI
+tooling will take your ChatGPT account directly. The two server routes here (`/api/rally/token`
+and `/api/copilotkit`) are plain server-to-server API calls and want a key: mint one from the
+same account and put it in `.env.local`. **Don't burn hackathon time trying to OAuth a Next.js
+route handler** — same account, same billing, one file, five minutes.
+
 ## Checklist
 
 - [ ] A0 token route returns `ek_...`
@@ -252,4 +286,6 @@ Emit `{ t:'context', attendees, agenda }` on the bus so Hemanth can render the r
 - [ ] A3 all 7 tools declared and dispatching
 - [ ] A5 persona reads like a colleague at room volume
 - [ ] A6 attendees primed
+- [ ] **A8 Hermes installed, authed, running — posted in comms (H3 is blocked on this)**
+- [ ] A8 `/api/copilotkit` route live on the OpenAI adapter
 - [ ] A7 keyboard overrides + backup recording

@@ -89,11 +89,14 @@ npm run dev
 
 ```bash
 # .env.local
-OPENAI_API_KEY=sk-...          # voice only
+OPENAI_API_KEY=sk-...          # voice, Hermes, and the CopilotKit runtime — one account
 AMBIGUOUS_API_KEY=ak_...       # the workspace
 AMBIGUOUS_MODE=live            # or `mock` — the UI is identical either way
-ANTHROPIC_API_KEY=sk-ant-...   # CopilotKit sidebar + Hermes
+HERMES_MODE=live               # or `canned`
 ```
+
+Every model here is an OpenAI model: `gpt-realtime-2.1` for the voice loop, and the current
+flagship text model behind Hermes and the CopilotKit runtime.
 
 Open `localhost:3000`, allow the mic, wear headphones (Rally will otherwise hear itself through
 the speaker and loop). **`localhost:3000/?sim=1`** replays a scripted meeting through the event
@@ -103,12 +106,12 @@ bus with no microphone and no API keys — that's how the UI was built, and it's
 
 Next.js 15 · TypeScript · Tailwind · [OpenAI Realtime](https://developers.openai.com/api/docs/guides/realtime)
 over WebRTC · [Ambiguous](https://www.ambiguous.ai/) · [Hermes Agent](https://hermes-agent.nousresearch.com/) ·
-[CopilotKit](https://docs.copilotkit.ai/) on the Anthropic adapter · `node:sqlite`.
+[CopilotKit](https://docs.copilotkit.ai/) · `node:sqlite`.
 
 ## Built by
 
 **Aravind** — the fast brain: Realtime session, wake gate, tool dispatch.
-**Hemanth** — the hands: Ambiguous, Hermes, the room display, memory, CopilotKit.
+**Hemanth** — the hands: Ambiguous, the Hermes integration, the room display, memory, the CopilotKit sidebar.
 
 Two people, two agents, working in parallel against one frozen contract and a shared
 [`inter-agent-comms.md`](inter-agent-comms.md). The plan is in [`PLAN.md`](PLAN.md).

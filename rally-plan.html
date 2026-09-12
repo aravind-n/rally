@@ -139,6 +139,7 @@ footer a{color:var(--a)}
   <span class="pill">Ambiguous</span>
   <span class="pill">Hermes Agent</span>
   <span class="pill">CopilotKit</span>
+  <span class="pill">OpenAI models throughout</span>
   <span class="pill">Next.js · TypeScript</span>
 </div>
 
@@ -160,7 +161,7 @@ footer a{color:var(--a)}
   <div class="brain h">
     <div class="who">Hemanth owns</div>
     <div class="what">The slow brain</div>
-    <div class="tech">Hermes Agent · self-hosted, non-OpenAI model</div>
+    <div class="tech">Hermes Agent · self-hosted, OpenAI model</div>
     <dl>
       <dt>lifetime</dt><dd>forever</dd>
       <dt>latency</dt><dd>minutes to hours</dd>
@@ -231,6 +232,7 @@ footer a{color:var(--a)}
       <li><b>A5</b> persona &amp; confirm-out-loud <span class="m">· 30m</span></li>
       <li><b>A6</b> context priming <span class="m">· 20m</span></li>
       <li><b>A7</b> keyboard overrides + backup recording <span class="m">· 20m</span></li>
+      <li><b>A8</b> <span class="star">★</span> Hermes auth + CopilotKit runtime <span class="m">· 30m, early</span></li>
     </ol>
   </div>
   <div class="col h">
@@ -239,20 +241,20 @@ footer a{color:var(--a)}
       <li><b>H0</b> <span class="star">★</span> scaffold + 7 mock endpoints <span class="m">· 45m, first</span></li>
       <li><b>H1</b> <span class="star">★</span> <b>the room display</b> <span class="m">· 2h</span></li>
       <li><b>H2</b> <span class="star">★</span> Ambiguous tool belt <span class="m">· 1.5h</span></li>
-      <li><b>H3</b> <span class="star">★</span> Hermes Agent / <code>delegate</code> <span class="m">· 1h</span></li>
+      <li><b>H3</b> <span class="star">★</span> Hermes integration / <code>delegate</code> <span class="m">· 1h</span></li>
       <li><b>H4</b> memory — <code>node:sqlite</code> <span class="m">· 30m</span></li>
-      <li><b>H5</b> CopilotKit sidebar, AnthropicAdapter <span class="m">· 45m</span></li>
+      <li><b>H5</b> CopilotKit sidebar — React side only <span class="m">· 45m</span></li>
       <li><b>H6</b> Ambiguous mirror + README <span class="m">· 45m</span></li>
     </ol>
   </div>
 </div>
-<p class="sub" style="margin-top:1.2em"><b>Hard rule.</b> Every line of OpenAI code is Aravind's. <code>OPENAI_API_KEY</code> lives only in his <code>.env.local</code>. If Hemanth's agent reaches for an OpenAI SDK, endpoint or model name, it stops and posts <code>BLOCKED</code> in <code>inter-agent-comms.md</code>. CopilotKit runs on the Anthropic adapter and Hermes points at a non-OpenAI model, so both stay cleanly in his lane.</p>
+<p class="sub" style="margin-top:1.2em"><b>Hard rule.</b> Everything runs on OpenAI models <em>and</em> every line of OpenAI code is Aravind's. Those collide in exactly two places — Hermes's backing model and CopilotKit's runtime adapter — so both are pulled into his column as <b>A8</b>. Hemanth is handed a running, already-authenticated Hermes and a working <code>/api/copilotkit</code> route; he configures no model, holds no key, imports no OpenAI SDK. If his agent reaches for one, it stops and posts <code>BLOCKED</code> in <code>inter-agent-comms.md</code>.</p>
 
 <h2>Timeline — 11:45 now, freeze at 18:00</h2>
 <div class="tl">
   <div class="row hd"><div>clock</div><div>Aravind</div><div>Hemanth</div></div>
   <div class="row sync"><div class="clock">11:45</div><div class="span">T0 · together — copy in <code>contract.ts</code>, agree the 7 tools · the only 30 min you must be in sync</div></div>
-  <div class="row"><div class="clock">12:15</div><div class="aa">A0 → A1 → <b>A2 wake gate</b></div><div class="hh"><b>H0 mocks first</b> (unblocks Aravind) → H1 display</div></div>
+  <div class="row"><div class="clock">12:15</div><div class="aa">A0 → A1 → <b>A2 wake gate</b> · <b>A8 Hermes auth</b></div><div class="hh"><b>H0 mocks first</b> (unblocks Aravind) → H1 display</div></div>
   <div class="row sync"><div class="clock">14:15</div><div class="span">Check 1 — say “Rally, file that” → a mock card renders on the display</div></div>
   <div class="row"><div class="clock">14:30</div><div class="aa">A3 dispatcher → A4 sim → A5 persona</div><div class="hh">H2 Ambiguous → H3 Hermes</div></div>
   <div class="row sync"><div class="clock">16:15</div><div class="span">Check 2 — full path live: voice → Ambiguous → screen</div></div>
@@ -266,10 +268,10 @@ footer a{color:var(--a)}
   <div class="lbl">Drop from the left if you're behind</div>
   <div class="cutline">
     <span class="c">CopilotKit sidebar</span><span class="arrow">→</span>
-    <span class="c">Hermes delegation</span><span class="arrow">→</span>
-    <span class="c">memory recall</span><span class="arrow">→</span>
     <span class="c">write_recap</span><span class="arrow">→</span>
-    <span class="c">book_slot</span>
+    <span class="c">book_slot</span><span class="arrow">→</span>
+    <span class="c">Hermes scheduled follow-through</span><span class="arrow">→</span>
+    <span class="c">Hermes delegate</span>
   </div>
   <div class="lbl" style="margin-top:1.3em">Never cut</div>
   <div class="cutline">
@@ -277,7 +279,9 @@ footer a{color:var(--a)}
     <span class="c keep">file_task</span>
     <span class="c keep">the room display</span>
     <span class="c keep">the Ambiguous mirror</span>
+    <span class="c keep">recall</span>
   </div>
+  <p class="sub" style="margin:1.3em 0 0;font-size:.87rem">CopilotKit appears nowhere in the demo script and Hermes carries its last two beats. Cut the prize-chasing sidebar long before you touch the second brain.</p>
 </div>
 
 <h2>The three things that will actually go wrong</h2>
@@ -308,7 +312,7 @@ Idea sourced from <code>opus5-ideas.html</code> #13 and <code>voice-ranked-top10
 Stack refs: <a href="https://developers.openai.com/api/docs/guides/realtime">OpenAI Realtime</a> ·
 <a href="https://www.ambiguous.ai/">Ambiguous</a> ·
 <a href="https://hermes-agent.nousresearch.com/">Hermes Agent</a> ·
-<a href="https://docs.copilotkit.ai/reference/classes/llm-adapters/AnthropicAdapter">CopilotKit AnthropicAdapter</a>.
+<a href="https://docs.copilotkit.ai/">CopilotKit</a>.
 </footer>
 
 </div>

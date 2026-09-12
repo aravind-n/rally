@@ -18,14 +18,19 @@ for humans.
 
 | | owns | never touches |
 |---|---|---|
-| **Aravind** | everything OpenAI: Realtime API, voice loop, wake-word gate, tool dispatch, `?sim=1` | Hemanth's endpoints, the UI |
-| **Hemanth** | everything else: Ambiguous, Hermes Agent, the room display, memory, CopilotKit | `src/app/api/rally/`, `src/lib/voice/`, `src/components/VoiceController.tsx` |
+| **Aravind** | everything OpenAI: Realtime API, voice loop, wake-word gate, tool dispatch, `?sim=1`, **and all model/credential config** | Hemanth's endpoints, the UI |
+| **Hemanth** | everything else: Ambiguous, Hermes integration, the room display, memory, CopilotKit's React side | `src/app/api/rally/`, `src/app/api/copilotkit/`, `src/lib/voice/`, `src/components/VoiceController.tsx` |
+
+**Every model in this project is an OpenAI model.** One account, one owner: Aravind.
 
 > ### 🚫 Hemanth's agent: no OpenAI. At all.
-> No OpenAI SDK, endpoint, key, or model name. The app must boot and the UI must fully work with
-> no `OPENAI_API_KEY` present — build against Aravind's `?sim=1` mode. If a task seems to need
-> one, **stop and post `BLOCKED` in `inter-agent-comms.md`.** That work is Aravind's.
-> LLM calls that are genuinely yours (CopilotKit, Hermes) go to **Anthropic** or **OpenRouter**.
+> No OpenAI SDK, endpoint, key, or model name — not even in a config file. The app must boot and
+> the UI must fully work with no credentials present; build against Aravind's `?sim=1` mode.
+> If a task seems to need one, **stop and post `BLOCKED` in `inter-agent-comms.md`.**
+>
+> The two places this could bite you are already handled. Aravind's **A8** hands you a **running,
+> already-authenticated Hermes process** and a **working `/api/copilotkit` runtime route**. You
+> integrate against both without ever configuring a model.
 
 ## How to work here
 
@@ -48,5 +53,6 @@ on camera.
 
 Next.js 15 (App Router, `src/`, TypeScript, Tailwind) · OpenAI Realtime over browser WebRTC ·
 [Ambiguous](https://www.ambiguous.ai/) REST for the workspace · [Hermes Agent](https://hermes-agent.nousresearch.com/)
-for persistent memory and async work · CopilotKit on the Anthropic adapter · `node:sqlite`.
+for persistent memory and async work · CopilotKit · `node:sqlite`.
+Every model is an OpenAI model, on one account that Aravind owns.
 One repo, one `npm run dev`, runs on a laptop. Do not deploy.
