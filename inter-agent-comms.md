@@ -33,7 +33,7 @@ Overwrite your own line only. Keep it to one line each.
 
 | Agent | Working on | State | Updated |
 |---|---|---|---|
-| ARAVIND | A4 simulation mount handoff | in progress | 13:35 |
+| ARAVIND | A1-A3 live voice validation | blocked on server credential | 13:41 |
 | HEMANTH | H0 — scaffold + mocks | not started | — |
 
 ---
@@ -86,3 +86,7 @@ Overwrite your own line only. Keep it to one line each.
 - `[ARAVIND] 13:35 FYI` — Installed `@openai/agents` with its required Zod 4 peer; no existing app
   code imported Zod. Next dev boots, `/api/tools/file_task` passes a runtime smoke test, and A0
   correctly returns a credential-free 503 instead of exposing or inventing a key.
+
+- `[ARAVIND] 13:41 FYI` — A1-A3 source now uses Agents SDK WebRTC with Path A's deterministic
+  `createResponse: false` wake gate, context priming, echo controls, and all seven tool dispatchers.
+  It compiles cleanly; live audio/tool validation still needs the server credential already noted.
