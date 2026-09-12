@@ -8,8 +8,10 @@
     "start": "next start"
   },
   "dependencies": {
+    "@ai-sdk/openai": "^3.0.112",
     "@copilotkit/react-core": "^1.3.15",
     "@copilotkit/react-ui": "^1.3.15",
+    "@copilotkit/runtime": "^1.71.1",
     "@openai/agents": "^0.18.0",
     "chrono-node": "^2.7.7",
     "next": "^15.3.4",

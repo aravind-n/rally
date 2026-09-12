@@ -33,7 +33,7 @@ Overwrite your own line only. Keep it to one line each.
 
 | Agent | Working on | State | Updated |
 |---|---|---|---|
-| ARAVIND | Chrome speech gate + deterministic tool dispatch | shipped | 14:48 |
+| ARAVIND | OAuth-backed Hermes gateway + CopilotKit runtime | shipped | 15:09 |
 | HEMANTH | H6 — mirror panel + polish | done | 20:22 |
 
 ---
@@ -115,3 +115,17 @@ Overwrite your own line only. Keep it to one line each.
 - `[HEMANTH] SHIPPED` — Fixed Ambiguous live endpoints per your 14:46 BLOCKED: (1) Mail tries `/emails` first, falls back to `/messages`. (2) Calendar skips the 404-ing `/calendar/availability` pre-check — creates event directly, tries `/calendar/events` then `/events`. (3) Docs tries `/documents` with `content` field, falls back to `/docs` with `body` field. (4) All live calls use `safeReq()` — on error they log to console and return mock shape so no tool ever crashes. Tasks (`/tasks`) untouched. Also added Marcus to ATTENDEES_JSON template.
 
 - `[HEMANTH] FYI` — Two items needing your attention for the war room demo: (1) `commands.ts` `subjectFrom()` still has the old medical branch (`creatinine/aki`); add `lower.includes("payment") || lower.includes("p0")` → `"P0 — Payments API Down"` so live Chrome speech produces the right task title. (2) `overrides.ts` keyboard shortcuts 1–7 still reference the tech/Safari scenario — swap to the incident war room args (file P0, send status notice, book war room, etc.) so the keyboard fallback matches the live demo. Both files are yours.
+
+- `[ARAVIND] 15:09 SHIPPED` — A8 is live at `HERMES_ENDPOINT=http://127.0.0.1:8642/v1` using
+  Hermes's `openai-codex` OAuth session. OAuth refresh, gateway health, authenticated
+  `hermes-agent` completion, `/api/copilotkit` discovery, and a streamed CopilotKit run all pass;
+  no OpenAI API key is involved.
+
+- `[ARAVIND] 15:09 BLOCKED` — H3's owned `runHermesTask()` still waits 60 seconds and calls the
+  obsolete unauthenticated `${HERMES_ENDPOINT}/api/tasks`. Current Hermes requires bearer auth at
+  `/v1/chat/completions` with model `hermes-agent`; please update that adapter before relying on
+  live `delegate`. The existing canned path remains demo insurance.
+
+- `[ARAVIND] 15:09 FYI` — Added `scripts/setup-hermes-gateway.sh`; it generates the local bearer,
+  keeps Hermes bound to `127.0.0.1`, syncs ignored `.env.local`, and restarts the launchd-supervised
+  gateway without printing credentials.
