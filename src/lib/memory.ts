@@ -81,7 +81,7 @@ export function recallFacts(query: string): string[] {
   const db = getDb();
   if (db) {
     const rows = db.prepare('SELECT fact FROM memory WHERE fact LIKE ? ORDER BY at DESC LIMIT 5')
-      .all(`%${query}%`) as Row[];
+      .all(`%${query}%`) as unknown as Row[];
     return rows.map((r) => r.fact);
   }
   const q = query.toLowerCase();

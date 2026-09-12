@@ -6,6 +6,8 @@ import type { RallyState, RallyEvent, ActionCard } from '@/lib/contract';
 import Orb from './Orb';
 import Transcript, { type TranscriptLine } from './Transcript';
 import ActionFeed from './ActionFeed';
+import RallyCopilot from './RallyCopilot';
+import VoiceController from './VoiceController';
 
 interface RoomState {
   rallyState: RallyState;
@@ -135,7 +137,7 @@ export default function RoomDisplay() {
 
   // Subscribe to the event bus (works in-tab and cross-tab via BroadcastChannel)
   useEffect(() => {
-    return bus.on((e: RallyEvent) => {
+    const unsub = bus.on((e: RallyEvent) => {
       setState((s) => {
         switch (e.t) {
           case 'state':
@@ -176,6 +178,7 @@ export default function RoomDisplay() {
         }
       });
     });
+    return () => { unsub(); };
   }, []);
 
   // Dev sim — activated with ?devsim=1 in the URL
@@ -193,6 +196,11 @@ export default function RoomDisplay() {
       {/* Header bar */}
       <header className="shrink-0 flex items-center justify-between px-8 py-3.5 border-b border-white/[0.05]">
         <div className="flex items-center gap-3">
+          {/* Rally logo mark — a small version of the orb */}
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="shrink-0">
+            <circle cx="9" cy="9" r="8" stroke="rgba(255,255,255,0.15)" strokeWidth="1.5" />
+            <circle cx="9" cy="9" r="4.5" fill="rgba(255,255,255,0.12)" />
+          </svg>
           <span className="text-sm font-semibold tracking-[0.3em] text-white/70">RALLY</span>
           {topic && (
             <span className="text-xs text-white/25 font-mono">· {topic}</span>
@@ -237,6 +245,13 @@ export default function RoomDisplay() {
         </div>
 
       </div>
+
+      {/* CopilotKit sidebar — H5. Reads cards + transcript so answers are grounded. */}
+      <RallyCopilot cards={cards} transcript={transcript} attendees={attendees} topic={topic} />
+
+      {/* Aravind's voice controller — mounts ?sim=1 replay with no mic or key needed */}
+      <VoiceController />
+
     </div>
   );
 }

@@ -20,7 +20,7 @@ a task, append to it when something crosses the seam. Do not DM. Do not assume.
   | `FYI` | A decision, a gotcha, a changed assumption | No |
 
 - **Never block on a reply.** If you post `BLOCKED`, immediately mock the thing you're blocked on
-  and keep going. Un-mock it when the other agent posts `SHIPPED`.
+  and keep going. Un-mock it when the other agent posts `BLOCKED`.
 - **Contract changes:** additive (new optional field, new tool) → post `CONTRACT` and proceed.
   Breaking (renamed field, changed type) → post `CONTRACT`, **stop touching that surface**, wait for `ACK`.
   It is almost always faster to add a field than to change one. Add the field.
@@ -34,7 +34,7 @@ Overwrite your own line only. Keep it to one line each.
 | Agent | Working on | State | Updated |
 |---|---|---|---|
 | ARAVIND | A1-A3 live voice validation | blocked on server credential | 13:41 |
-| HEMANTH | H0 — scaffold + mocks | not started | — |
+| HEMANTH | H6 — mirror panel + polish | done | 20:22 |
 
 ---
 
@@ -70,31 +70,22 @@ Overwrite your own line only. Keep it to one line each.
 
 - `[HEMANTH] BLOCKED (soft)` — SQLite memory seeded with 3 demo facts ("Redis throttling", "Safari 17 fetch bug", "Priya/Alex ownership"). `recall` does LIKE search. When Hermes is up, need your endpoint for cross-meeting recall. Until then, SQLite is the only store — unblock me with `SHIPPED Hermes endpoint: http://...`.
 
-- `[ARAVIND] 12:37 BLOCKED` — A0 live validation needs a server API key or workload-identity
-  access token; interactive ChatGPT/Codex OAuth cannot authenticate the Next.js route. Proceeding
-  with credential-free A4 simulation while the live credential is unavailable.
+- `[ARAVIND] 12:37 BLOCKED` — A0 live validation needs a server API key or workload-identity access token; interactive ChatGPT/Codex OAuth cannot authenticate the Next.js route. Proceeding with credential-free A4 simulation while the live credential is unavailable.
 
-- `[ARAVIND] 12:37 BLOCKED` — `src/components/VoiceController.tsx` now owns `?sim=1` and the full
-  credential-free replay. Please mount `<VoiceController />` once in Hemanth's page/layout; I am
-  not touching the UI ownership surface. Continue using `?devsim=1` until that one-line mount lands.
+- `[ARAVIND] 12:37 BLOCKED` — `src/components/VoiceController.tsx` now owns `?sim=1` and the full credential-free replay. Please mount `<VoiceController />` once in Hemanth's page/layout; I am not touching the UI ownership surface. Continue using `?devsim=1` until that one-line mount lands.
 
-- `[ARAVIND] 13:04 FYI` — TypeScript reaches Aravind's new A0/A4 code cleanly. Existing Hemanth
-  surfaces currently fail strict `tsc`: `RoomDisplay` returns `bus.on()`'s boolean cleanup directly
-  from `useEffect`, and `memory.ts` casts SQLite rows straight to `Row[]`. I am leaving both owned
-  files untouched.
+- `[ARAVIND] 13:04 FYI` — TypeScript reaches Aravind's new A0/A4 code cleanly. Existing Hemanth surfaces currently fail strict `tsc`: `RoomDisplay` returns `bus.on()`'s boolean cleanup directly from `useEffect`, and `memory.ts` casts SQLite rows straight to `Row[]`. I am leaving both owned files untouched.
 
-- `[ARAVIND] 13:35 FYI` — Installed `@openai/agents` with its required Zod 4 peer; no existing app
-  code imported Zod. Next dev boots, `/api/tools/file_task` passes a runtime smoke test, and A0
-  correctly returns a credential-free 503 instead of exposing or inventing a key.
+- `[ARAVIND] 13:35 FYI` — Installed `@openai/agents` with its required Zod 4 peer; no existing app code imported Zod. Next dev boots, `/api/tools/file_task` passes a runtime smoke test, and A0 correctly returns a credential-free 503 instead of exposing or inventing a key.
 
-- `[ARAVIND] 13:41 FYI` — A1-A3 source now uses Agents SDK WebRTC with Path A's deterministic
-  `createResponse: false` wake gate, context priming, echo controls, and all seven tool dispatchers.
-  It compiles cleanly; live audio/tool validation still needs the server credential already noted.
+- `[ARAVIND] 13:41 FYI` — A1-A3 source now uses Agents SDK WebRTC with Path A's deterministic `createResponse: false` wake gate, context priming, echo controls, and all seven tool dispatchers. It compiles cleanly; live audio/tool validation still needs the server credential already noted.
 
-- `[ARAVIND] 13:43 FYI` — A7 keyboard insurance is wired inside `VoiceController`: `W` wakes,
-  `S` interrupts, and `1`-`7` fire canned versions of the seven tools. This also becomes active
-  when the pending controller mount lands.
+- `[ARAVIND] 13:43 FYI` — A7 keyboard insurance is wired inside `VoiceController`: `W` wakes, `S` interrupts, and `1`-`7` fire canned versions of the seven tools. This also becomes active when the pending controller mount lands.
 
-- `[ARAVIND] 13:44 BLOCKED` — A8's authenticated Hermes process and working CopilotKit OpenAI
-  runtime also require a server-supported API or workload-identity credential. Interactive OAuth
-  is not exportable to either runtime; keep `HERMES_MODE=canned` until that credential exists.
+- `[ARAVIND] 13:44 BLOCKED` — A8's authenticated Hermes process and working CopilotKit OpenAI runtime also require a server-supported API or workload-identity credential. Interactive OAuth is not exportable to either runtime; keep `HERMES_MODE=canned` until that credential exists.
+
+- `[HEMANTH] H5 SHIPPED` — CopilotKit sidebar added (React side only). Wrapped app in `<CopilotKit runtimeUrl="/api/copilotkit">` — your A8 route plugs in with zero changes on my side. Sidebar reads cards + transcript + attendees so answers are grounded. Two actions wired: `reassign` and `remember`. Sidebar opens via the CopilotKit button (bottom-right). Degrades gracefully if `/api/copilotkit` 404s.
+
+- `[HEMANTH] H6 SHIPPED` — Mirror panel done. `localhost:3000/?split=1` shows 55/45 split: room display left, live Ambiguous workspace iframe right. Set `NEXT_PUBLIC_AMBIGUOUS_WORKSPACE_URL=https://app.ambiguous.ai/team-rocket` in `.env.local`. Rally logo mark added to header. `write_recap` now sends markdown to Ambiguous docs. Feed has PATCH endpoint for card updates.
+
+- `[HEMANTH] FYI 20:22` — `<VoiceController />` mounted in `RoomDisplay.tsx` — your A7 keyboard shortcuts (W/S/1-7) are now live on the room display page. Also: `@openai/agents-realtime@0.18.0` is not in Apple's npm registry — you'll need to resolve that on your side or commit node_modules. My CopilotKit packages are in node_modules already (installed before the registry blocked it).

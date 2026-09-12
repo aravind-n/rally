@@ -295,25 +295,19 @@ async function runHermesTask(task: string, cardId: string, channel: string) {
 
 // ── Document builder for write_recap ─────────────────────────────────────────
 
-function buildRecapContent(args: ToolArgs['write_recap']) {
-  return {
-    type: 'doc',
-    content: [
-      { type: 'heading', level: 1, text: args.title },
-      { type: 'heading', level: 2, text: 'Summary' },
-      ...args.bullets.map((b) => ({ type: 'paragraph', text: `• ${b}` })),
-      ...(args.decisions?.length
-        ? [
-            { type: 'heading', level: 2, text: 'Decisions' },
-            ...args.decisions.map((d) => ({ type: 'paragraph', text: `✓ ${d}` })),
-          ]
-        : []),
-      ...(args.owners?.length
-        ? [
-            { type: 'heading', level: 2, text: 'Action Items' },
-            ...args.owners.map((o) => ({ type: 'paragraph', text: `→ ${o.who}: ${o.what}` })),
-          ]
-        : []),
-    ],
-  };
+function buildRecapContent(args: ToolArgs['write_recap']): string {
+  const lines: string[] = [
+    `# ${args.title}`,
+    '',
+    '## Summary',
+    ...args.bullets.map((b) => `- ${b}`),
+  ];
+  if (args.decisions?.length) {
+    lines.push('', '## Decisions', ...args.decisions.map((d) => `- ✓ ${d}`));
+  }
+  if (args.owners?.length) {
+    lines.push('', '## Action Items', ...args.owners.map((o) => `- **${o.who}**: ${o.what}`));
+  }
+  lines.push('', '*Created by Rally*');
+  return lines.join('\n');
 }
