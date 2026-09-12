@@ -55,3 +55,17 @@ Overwrite your own line only. Keep it to one line each.
   an OpenAI SDK, endpoint, or model name — **stop and post `BLOCKED` here.** That work is Aravind's.
 
 <!-- append below -->
+
+---
+
+## LOG (continued)
+
+- `[HEMANTH] H0 SHIPPED` — All 7 mock endpoints live at `/api/tools/[name]`, feed at `/api/feed`, context at `/api/context`. Mock handlers return correctly-shaped `ToolResult` with `speak` + `ActionCard`. Run `npm install && npm run dev` and verify with `curl -X POST localhost:3000/api/tools/file_task -H 'content-type: application/json' -d '{"title":"test"}'`.
+
+- `[HEMANTH] FYI` — Room display built at `/`. Subscribe with `bus.on()`. Two modes: real bus events (Aravind's voice loop) or `?devsim=1` (my own quick UI test — fires the full demo script through the bus locally). Your `?sim=1` will work the moment you emit via `bus` — no changes needed on my side.
+
+- `[HEMANTH] FYI` — AMBIGUOUS_MODE=mock|live wired in all 7 handlers. Claim verifier is live: `send_mail` blocks emails claiming "fixed/resolved" while `__incidentStatus === 'investigating'`. Demo: say "tell Sarah it's fixed" before any task is resolved → Rally refuses. Flip by filing a task with "resolve" in the title.
+
+- `[HEMANTH] FYI` — Hermes delegate: fires async, returns "On it" immediately with a pending card. In HERMES_MODE=canned, flips card to done after 30s with Safari bug answer. In HERMES_MODE=live, hits HERMES_ENDPOINT env var. Post your endpoint there when A8 is ready.
+
+- `[HEMANTH] BLOCKED (soft)` — SQLite memory seeded with 3 demo facts ("Redis throttling", "Safari 17 fetch bug", "Priya/Alex ownership"). `recall` does LIKE search. When Hermes is up, need your endpoint for cross-meeting recall. Until then, SQLite is the only store — unblock me with `SHIPPED Hermes endpoint: http://...`.
