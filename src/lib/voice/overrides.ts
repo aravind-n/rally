@@ -11,49 +11,52 @@ const TOOL_OVERRIDES: Record<string, Override> = {
   '1': {
     name: 'file_task',
     args: {
-      title: 'Signup flow 500s on Safari',
-      assignee: 'Priya',
-      priority: 'high',
+      title: 'P0 — Payments API Down',
+      details: 'Payments API is returning 500s. Priya owns the incident. Captured by Rally.',
+      priority: 'urgent',
     },
   },
   '2': {
     name: 'send_mail',
     args: {
-      to: ['Priya', 'Sam', 'Alex'],
-      subject: 'Upload Reliability Review recap',
-      body: 'Priya owns the Safari signup investigation and follow-up.',
+      to: ['customers-updates'],
+      subject: 'Payment service disruption — investigating',
+      body: 'We are aware of an issue affecting payment processing and are actively investigating.',
     },
   },
   '3': {
     name: 'book_slot',
     args: {
-      title: 'Safari signup follow-up',
-      with: ['Priya'],
-      when: 'tomorrow at 3pm',
+      title: 'Payments incident review',
+      with: ['Priya', 'Alex', 'Sam'],
+      when: 'tomorrow at 10am',
       duration_minutes: 30,
     },
   },
   '4': {
     name: 'write_recap',
     args: {
-      title: 'Upload Reliability Review recap',
-      bullets: ['Safari signup failures are under investigation.'],
-      owners: [{ who: 'Priya', what: 'Investigate the Safari signup failure.' }],
+      title: 'P0 — Payments API Down recap',
+      bullets: ['Payments failed after the database connection pool reached its limit.'],
+      owners: [{ who: 'Priya', what: 'Apply and verify the connection pool fix.' }],
     },
   },
   '5': {
     name: 'remember',
-    args: { fact: 'Priya owns the Safari signup investigation.', tags: ['Safari', 'signup'] },
+    args: {
+      fact: 'The payments outage matched the November connection pool exhaustion.',
+      tags: ['payments', 'p0', 'connection-pool'],
+    },
   },
   '6': {
     name: 'recall',
-    args: { query: 'Safari broken last week' },
+    args: { query: 'Payments API' },
   },
   '7': {
     name: 'delegate',
     args: {
-      task: 'Find whether Safari 17 has a known fetch bug and report back.',
-      report_to: 'meeting channel',
+      task: 'Compare the payments outage with the November 14 incident and report the exact fix.',
+      report_to: 'incident-response',
     },
   },
 };

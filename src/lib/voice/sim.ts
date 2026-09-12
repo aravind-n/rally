@@ -45,83 +45,105 @@ const SCRIPT: Step[] = [
   [0, () => state('listening')],
   [300, () => emit({
     t: 'context',
-    attendees: ['Priya', 'Sam', 'Alex', 'Hemanth'],
-    agenda: 'Upload Reliability Review',
+    attendees: ['Alex', 'Priya', 'Sam'],
+    agenda: 'P0 — Payments API Down',
   })],
-  [1_200, () => heard('sim-1', 'The signup flow 500s on Safari.')],
-  [2_400, () => heard('sim-2', 'I saw that this morning too.', 'Sam')],
-  [3_600, () => heard('sim-3', 'Rally, file that.')],
+  [1_200, () => heard('sim-1', 'Payments are down — 500s on every checkout attempt.', 'Alex')],
+  [2_000, () => heard('sim-2', 'DB metrics look normal from my side.', 'Sam')],
+  [2_800, () => heard('sim-3', 'App tier is throwing connection errors.', 'Priya')],
+  [3_600, () => heard('sim-4', 'Rally, open a P0 — payments API down, assign to Priya.')],
   [3_750, () => {
-    wake('Rally, file that.');
+    wake('Rally, open a P0 — payments API down, assign to Priya.');
     state('armed');
-    emit({ t: 'thinking', label: 'Preparing task…' });
+    emit({ t: 'thinking', label: 'Opening P0…' });
   }],
-  [4_350, () => spoke("Filing 'Signup flow 500s on Safari.' Who owns it?")],
-  [5_200, () => {
-    state('listening');
-    heard('sim-4', 'Priya.');
-  }],
-  [5_600, async () => {
+  [4_100, async () => {
     const result = await runTool('file_task', {
-      title: 'Signup flow 500s on Safari',
-      details: 'Signup fails with a 500 response on Safari.',
-      assignee: 'Priya',
-      priority: 'high',
+      title: 'P0 — Payments API Down',
+      details: 'Payments API is returning 500s. Priya owns the incident. Captured by Rally.',
+      priority: 'urgent',
     });
     spoke(result.speak);
   }],
-  [7_500, () => state('listening')],
-  [9_000, () => heard(
-    'sim-5',
-    'Rally, book thirty minutes with Priya tomorrow and send the group a recap.',
-  )],
+  [5_500, () => state('listening')],
+  [6_200, () => heard('sim-5', "Rally, send customers a notice we're aware of payment issues.")],
+  [6_350, () => {
+    wake("Rally, send customers a notice we're aware of payment issues.");
+    state('armed');
+  }],
+  [6_700, async () => {
+    const result = await runTool('send_mail', {
+      to: ['customers-updates'],
+      subject: 'Payment service disruption — investigating',
+      body: 'We are aware of an issue affecting payment processing and are actively investigating.',
+    });
+    spoke(result.speak);
+  }],
+  [8_200, () => state('listening')],
+  [9_000, () => heard('sim-6', 'Rally, did we see this pattern in a previous outage?')],
   [9_150, () => {
-    wake('Rally, book thirty minutes with Priya tomorrow and send the group a recap.');
+    wake('Rally, did we see this pattern in a previous outage?');
     state('armed');
   }],
   [9_500, async () => {
-    const [booking, email] = await Promise.all([
-      runTool('book_slot', {
-        title: 'Safari signup follow-up',
-        with: ['Priya'],
-        when: 'tomorrow at 3pm',
-        duration_minutes: 30,
-      }),
-      runTool('send_mail', {
-        to: ['Priya', 'Sam', 'Alex'],
-        subject: 'Upload Reliability Review recap',
-        body: 'Safari signup failures are under investigation. Priya owns the follow-up.',
-      }),
-    ]);
-    spoke(`${booking.speak} ${email.speak}`);
-  }],
-  [12_500, () => state('listening')],
-  [14_500, () => heard('sim-6', 'Rally, was Safari broken last week too?')],
-  [14_650, () => {
-    wake('Rally, was Safari broken last week too?');
-    state('armed');
-  }],
-  [15_000, async () => {
-    const result = await runTool('recall', { query: 'Safari broken last week' });
+    const result = await runTool('recall', { query: 'Payments API' });
     spoke(result.speak);
   }],
-  [18_500, () => state('listening')],
-  [20_500, () => heard(
-    'sim-7',
-    'Rally, look into whether this is a known Safari bug and report back.',
-  )],
-  [20_650, () => {
-    wake('Rally, look into whether this is a known Safari bug and report back.');
+  [11_000, () => state('listening')],
+  [11_800, () => heard('sim-7', 'Rally, tell customers payments are back up and operational.')],
+  [11_950, () => {
+    wake('Rally, tell customers payments are back up and operational.');
     state('armed');
   }],
-  [21_000, async () => {
-    const result = await runTool('delegate', {
-      task: 'Find whether Safari 17 has a known fetch bug and report back.',
-      report_to: 'meeting channel',
+  [12_300, async () => {
+    const result = await runTool('send_mail', {
+      to: ['customers-updates'],
+      subject: 'Payment services restored',
+      body: 'Payment services are back up and fully operational.',
     });
     spoke(result.speak);
   }],
-  [23_000, () => state('listening')],
+  [13_800, () => state('listening')],
+  [14_500, () => heard('sim-8', 'Rally, file the payments incident as resolved.')],
+  [14_650, () => {
+    wake('Rally, file the payments incident as resolved.');
+    state('armed');
+  }],
+  [15_000, async () => {
+    const result = await runTool('file_task', {
+      title: 'Payments incident resolved — connection pool fix applied',
+      priority: 'urgent',
+    });
+    spoke(result.speak);
+  }],
+  [16_500, () => state('listening')],
+  [17_100, () => heard('sim-9', 'Now send the all-clear to customers.')],
+  [17_250, () => {
+    wake('Now send the all-clear to customers.');
+    state('armed');
+  }],
+  [17_600, async () => {
+    const result = await runTool('send_mail', {
+      to: ['customers-updates'],
+      subject: 'Payment services fully restored',
+      body: 'Payment services are fully restored. All transactions are processing normally.',
+    });
+    spoke(result.speak);
+  }],
+  [19_100, () => state('listening')],
+  [19_800, () => heard('sim-10', 'Rally, look into whether this matches November and report back.')],
+  [19_950, () => {
+    wake('Rally, look into whether this matches November and report back.');
+    state('armed');
+  }],
+  [20_300, async () => {
+    const result = await runTool('delegate', {
+      task: 'Compare the payments outage with the November 14 incident and report the exact fix.',
+      report_to: 'incident-response',
+    });
+    spoke(result.speak);
+  }],
+  [21_800, () => state('listening')],
 ];
 
 export function startRallySimulation() {

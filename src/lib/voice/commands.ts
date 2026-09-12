@@ -34,10 +34,20 @@ function cleanSentence(text: string) {
 }
 
 function subjectFrom(context: CommandContext, command: string) {
+  const stripped = stripWakeWord(command);
+  const commandLower = stripped.toLowerCase();
   const prior = [...context.recentUtterances]
     .reverse()
     .find((utterance) => !WAKE_WORDS.some((word) => utterance.toLowerCase().includes(word)));
-  const source = prior ?? stripWakeWord(command);
+
+  if (commandLower.includes('payment') || commandLower.includes('p0')) {
+    if (commandLower.includes('resolv')) {
+      return 'Payments incident resolved — connection pool fix applied';
+    }
+    return 'P0 — Payments API Down';
+  }
+
+  const source = /\b(that|it)\b/.test(commandLower) && prior ? prior : stripped;
   const lower = source.toLowerCase();
 
   if (lower.includes('signup') && lower.includes('safari')) return 'Signup flow 500s on Safari';
@@ -90,14 +100,17 @@ export function planDemoActions(command: string, context: CommandContext): Plann
   const actions: PlannedAction[] = [];
 
   const wantsTask =
-    /\b(file|create|add|log|track)\b/.test(lower) &&
-    /\b(that|task|ticket|bug|care plan|action item|follow-up)\b/.test(lower);
+    /\b(file|create|add|log|track|open)\b/.test(lower) &&
+    /\b(that|task|ticket|bug|care plan|action item|follow-up|incident|p0)\b/.test(lower);
   const wantsBooking = /\b(book|schedule)\b/.test(lower);
   const wantsSentRecap =
     /\b(send|email|mail)\b/.test(lower) && /\b(recap|summary|notes)\b/.test(lower);
+  const wantsStatusMail =
+    /\b(send|email|mail|tell|notify)\b/.test(lower) &&
+    /\b(customer|notice|status|all[- ]?clear|back up|operational|restored)\b/.test(lower);
   const wantsWrittenRecap =
     /\b(write|create|document)\b/.test(lower) && /\b(recap|summary|notes)\b/.test(lower);
-  const wantsRecall = /\b(recall|remember when|last week|before|previously)\b/.test(lower) ||
+  const wantsRecall = /\b(recall|remember when|last week|before|previous|previously|prior)\b/.test(lower) ||
     /\bwas\b.*\btoo\b/.test(lower);
   const wantsRemember = /\bremember (?:that )?|make a note\b/.test(lower);
   const wantsDelegate = /\b(look into|research|investigate)\b/.test(lower) &&
@@ -108,9 +121,13 @@ export function planDemoActions(command: string, context: CommandContext): Plann
       name: 'file_task',
       args: {
         title: subject,
-        details: `${subject}. Captured from the live meeting by Rally.`,
-        assignee: people[0],
-        priority: /\b(urgent|critical|high priority)\b/.test(lower) ? 'high' : 'normal',
+        details: subject === 'P0 — Payments API Down'
+          ? 'Payments API is returning 500s. Priya owns the incident. Captured by Rally.'
+          : `${subject}. Captured from the live meeting by Rally.`,
+        // Ambiguous requires an opaque user id, not the spoken name. Keep ownership
+        // in the task details until the workspace roster exposes that id.
+        assignee: subject === 'P0 — Payments API Down' ? undefined : people[0],
+        priority: /\b(p0|urgent|critical|down|high priority)\b/.test(lower) ? 'urgent' : 'normal',
       },
     });
   }
@@ -142,6 +159,22 @@ export function planDemoActions(command: string, context: CommandContext): Plann
     });
   }
 
+  if (wantsStatusMail) {
+    const isAllClear = /\b(all[- ]?clear|back up|operational|restored)\b/.test(lower);
+    actions.push({
+      name: 'send_mail',
+      args: {
+        to: ['customers-updates'],
+        subject: isAllClear
+          ? 'Payment services fully restored'
+          : 'Payment service disruption — investigating',
+        body: isAllClear
+          ? 'Payment services are back up and fully operational. All transactions are processing normally.'
+          : 'We are aware of an issue affecting payment processing and are actively investigating.',
+      },
+    });
+  }
+
   if (wantsWrittenRecap) {
     actions.push({
       name: 'write_recap',
@@ -154,7 +187,14 @@ export function planDemoActions(command: string, context: CommandContext): Plann
   }
 
   if (wantsRecall && !wantsRemember) {
-    actions.push({ name: 'recall', args: { query: stripWakeWord(command) } });
+    actions.push({
+      name: 'recall',
+      args: {
+        query: /\b(payment|p0|outage|pattern)\b/.test(lower)
+          ? 'Payments API'
+          : stripWakeWord(command),
+      },
+    });
   }
 
   if (wantsRemember) {

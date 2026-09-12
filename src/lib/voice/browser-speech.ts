@@ -114,6 +114,7 @@ export async function startBrowserSpeechRecognition() {
   let commandQueue = Promise.resolve();
   let lastFinal = '';
   let lastFinalAt = 0;
+  let followupUntil = 0;
 
   const start = () => {
     if (stopped) return;
@@ -169,7 +170,11 @@ export async function startBrowserSpeechRecognition() {
       lastFinal = text;
       lastFinalAt = now;
 
-      if (!isWake(text)) {
+      const woke = isWake(text);
+      const isActionableFollowup = !woke && now < followupUntil &&
+        planDemoActions(text, context).length > 0;
+
+      if (!woke && !isActionableFollowup) {
         context.recentUtterances.push(text);
         context.recentUtterances = context.recentUtterances.slice(-8);
         bus.emit({ t: 'state', state: 'listening' });
@@ -178,6 +183,9 @@ export async function startBrowserSpeechRecognition() {
 
       commandQueue = commandQueue
         .then(() => runCommand(text, context))
+        .then(() => {
+          followupUntil = Date.now() + 15_000;
+        })
         .catch((error) => {
           bus.emit({ t: 'error', message: `Command queue failed: ${String(error)}` });
         });

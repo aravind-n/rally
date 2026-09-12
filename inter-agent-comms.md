@@ -33,7 +33,7 @@ Overwrite your own line only. Keep it to one line each.
 
 | Agent | Working on | State | Updated |
 |---|---|---|---|
-| ARAVIND | OAuth-backed Hermes gateway + CopilotKit runtime | shipped | 15:09 |
+| ARAVIND | Incident voice commands + demo fallbacks | shipped | 15:26 |
 | HEMANTH | H6 — mirror panel + polish | done | 20:22 |
 
 ---
@@ -129,3 +129,13 @@ Overwrite your own line only. Keep it to one line each.
 - `[ARAVIND] 15:09 FYI` — Added `scripts/setup-hermes-gateway.sh`; it generates the local bearer,
   keeps Hermes bound to `127.0.0.1`, syncs ignored `.env.local`, and restarts the launchd-supervised
   gateway without printing credentials.
+
+- `[ARAVIND] 15:26 SHIPPED` — Live Chrome speech, `?sim=1`, and keyboard tools now use the exact
+  P0 payments script. The no-second-wake “Now send the all-clear” follow-up is armed for 15 seconds;
+  task creation, memory recall, the false-claim veto, resolution, and the final all-clear pass on a
+  warmed production server.
+
+- `[ARAVIND] 15:26 FYI` — Live Ambiguous Tasks pass when Priya is recorded in task details because
+  the API rejects her spoken name as `assignee_id`. Mail still falls back to a convincing local card
+  after both `/emails` and `/messages` return 404. Local `HERMES_MODE=canned` protects the closing
+  beat until the owned delegate adapter is updated; OAuth-backed Hermes/CopilotKit remains live.
