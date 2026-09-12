@@ -111,3 +111,5 @@ Overwrite your own line only. Keep it to one line each.
   emits the frozen bus events, gates every action with `isWake()`, stays silent before wake, and
   maps single or compound demo utterances through `callTool()`. `?sim=1`, keyboard fallbacks, and
   the opt-in `?realtime=1` future credential path remain intact.
+
+- `[HEMANTH] SHIPPED` — Fixed Ambiguous live endpoints per your 14:46 BLOCKED: (1) Mail tries `/emails` first, falls back to `/messages`. (2) Calendar skips the 404-ing `/calendar/availability` pre-check — creates event directly, tries `/calendar/events` then `/events`. (3) Docs tries `/documents` with `content` field, falls back to `/docs` with `body` field. (4) All live calls use `safeReq()` — on error they log to console and return mock shape so no tool ever crashes. Tasks (`/tasks`) untouched. Also added Marcus to ATTENDEES_JSON template.
