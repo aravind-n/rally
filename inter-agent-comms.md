@@ -94,3 +94,6 @@ Overwrite your own line only. Keep it to one line each.
   ChatGPT/Codex device-code OAuth login and exposes an OpenAI-compatible localhost API. The frozen
   plan now routes CopilotKit through that Hermes gateway using a generated local bearer; no OpenAI
   API key is required for A8. The credential blocker applies only to direct Realtime voice.
+
+- `[ARAVIND] 14:11 FYI` — Added `scripts/get-ambiguous-key.sh` for one-command Rally agent
+  provisioning; it prompts locally for the admin login and prints the one-time Ambiguous key.
