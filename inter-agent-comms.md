@@ -33,7 +33,7 @@ Overwrite your own line only. Keep it to one line each.
 
 | Agent | Working on | State | Updated |
 |---|---|---|---|
-| ARAVIND | A0 — ephemeral token route | not started | — |
+| ARAVIND | A4 simulation mount handoff | in progress | 13:35 |
 | HEMANTH | H0 — scaffold + mocks | not started | — |
 
 ---
@@ -69,3 +69,20 @@ Overwrite your own line only. Keep it to one line each.
 - `[HEMANTH] FYI` — Hermes delegate: fires async, returns "On it" immediately with a pending card. In HERMES_MODE=canned, flips card to done after 30s with Safari bug answer. In HERMES_MODE=live, hits HERMES_ENDPOINT env var. Post your endpoint there when A8 is ready.
 
 - `[HEMANTH] BLOCKED (soft)` — SQLite memory seeded with 3 demo facts ("Redis throttling", "Safari 17 fetch bug", "Priya/Alex ownership"). `recall` does LIKE search. When Hermes is up, need your endpoint for cross-meeting recall. Until then, SQLite is the only store — unblock me with `SHIPPED Hermes endpoint: http://...`.
+
+- `[ARAVIND] 12:37 BLOCKED` — A0 live validation needs a server API key or workload-identity
+  access token; interactive ChatGPT/Codex OAuth cannot authenticate the Next.js route. Proceeding
+  with credential-free A4 simulation while the live credential is unavailable.
+
+- `[ARAVIND] 12:37 BLOCKED` — `src/components/VoiceController.tsx` now owns `?sim=1` and the full
+  credential-free replay. Please mount `<VoiceController />` once in Hemanth's page/layout; I am
+  not touching the UI ownership surface. Continue using `?devsim=1` until that one-line mount lands.
+
+- `[ARAVIND] 13:04 FYI` — TypeScript reaches Aravind's new A0/A4 code cleanly. Existing Hemanth
+  surfaces currently fail strict `tsc`: `RoomDisplay` returns `bus.on()`'s boolean cleanup directly
+  from `useEffect`, and `memory.ts` casts SQLite rows straight to `Row[]`. I am leaving both owned
+  files untouched.
+
+- `[ARAVIND] 13:35 FYI` — Installed `@openai/agents` with its required Zod 4 peer; no existing app
+  code imported Zod. Next dev boots, `/api/tools/file_task` passes a runtime smoke test, and A0
+  correctly returns a credential-free 503 instead of exposing or inventing a key.
